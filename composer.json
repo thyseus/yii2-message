@@ -1,0 +1,35 @@
+{
+    "name": "thyseus/yii2-message",
+    "description": "Message system for Yii2",
+    "keywords": ["yii2", "yii2-user", "message"],
+    "type": "yii2-extension",
+    "license": "GPLv3",
+    "support": {
+        "issues": "https://github.com/thyseus/yii2-message/issues?state=open",
+        "forum": "https://gitter.im/thyseus/yii2-message",
+        "source": "https://github.com/thyseus/yii2-message"
+    },
+    "authors": [
+        {
+            "name": "Herbert Maschke",
+            "email": "thyseus@gmail.com",
+            "homepage": "https://github.com/thyseus/yii2-message"
+        }
+    ],
+    "minimum-stability": "dev",
+    "require": {
+        "yiisoft/yii2": "^2.0.0",
+        "yiisoft/yii2-swiftmailer": "^2.0.0",
+        "yiisoft/yii2-bootstrap": "^2.0.0"
+    },
+    "require-dev": {
+        "yiisoft/yii2-codeception": "^2.0.0",
+        "codeception/specify": "^0.4.3",
+        "codeception/verify": "^0.3.1"
+    },
+    "autoload": {
+        "psr-4": {
+            "thyseus\\message\\": ""
+        }
+    }
+}
