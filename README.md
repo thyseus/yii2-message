@@ -1,6 +1,8 @@
-# Yii2-message 
+# Yii2-message
 
 System for users to send each other private messages.
+
+2 crucial TODO´s left: ACL and pretty URLs.
 
 ## Installation
 
@@ -23,6 +25,14 @@ Add following lines to your main configuration file:
 ```
 
 Your User model should have a 'id' and 'username' attribute.
+
+The following Actions are possible:
+
+* inbox: https://your-domain/message/message/inbox
+* sent messages: https://your-domain/message/message/sent
+* compose a message: https://your-domain/message/message/compose
+* delete a message: https://your-domain/message/message/delete/hash=<hash>
+* view a message: https://your-domain/message/message/view/hash=<hash>
 
 ## Contributing to this project
 
