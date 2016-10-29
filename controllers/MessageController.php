@@ -8,6 +8,8 @@ use thyseus\message\models\MessageSearch;
 use yii\helpers\ArrayHelper;
 use yii\web\Controller;
 use yii\web\NotFoundHttpException;
+use yii\web\ForbiddenHttpException;
+use yii\filters\AccessControl;
 use yii\filters\VerbFilter;
 
 /**
@@ -21,6 +23,16 @@ class MessageController extends Controller
     public function behaviors()
     {
         return [
+           'access' => [
+                'class' => AccessControl::className(),
+                'rules' => [
+                    [
+                        'allow' => true,
+                        'actions' => ['inbox', 'sent', 'compose', 'view', 'delete'],
+                        'roles' => ['@'],
+                    ],
+                ],
+            ],
             'verbs' => [
                 'class' => VerbFilter::className(),
                 'actions' => [
@@ -139,6 +151,9 @@ class MessageController extends Controller
 
         if (!$message)
             throw new NotFoundHttpException(Yii::t('message', 'The requested message does not exist.'));
+
+        if (Yii::$app->user->id != $message->to && Yii::$app->user->id != $message->from)
+            throw new ForbiddenHttpException(Yii::t('message', 'You are not allowed to access this message.'));
 
         return $message;
     }
