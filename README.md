@@ -2,7 +2,13 @@
 
 System for users to send each other private messages.
 
-2 crucial TODO´s left: ACL and pretty URLs.
+## Prerequisites:
+
+You need an User Model that extends from ActiveRecord.
+It also should have the 'id' and 'username' attributes.
+
+I suggest to use https://github.com/dektrium/yii2-user which
+works wonderful with this module.
 
 ## Installation
 
@@ -18,13 +24,11 @@ Add following lines to your main configuration file:
 ```php
 'modules' => [
     'message' => [
-        'class' => 'thyseus\yii2-message\Module',
-        'modelClass' => '\app\models\User', // optional. your User model
+        'class' => 'thyseus\message\Module',
+        'modelClass' => '\app\models\User', // optional. your User model. Needs to be ActiveRecord.
     ],
 ],
 ```
-
-Your User model should have a 'id' and 'username' attribute.
 
 The following Actions are possible:
 
@@ -34,6 +38,27 @@ The following Actions are possible:
 * delete a message: https://your-domain/message/message/delete/hash=<hash>
 * view a message: https://your-domain/message/message/view/hash=<hash>
 
+You can place this code snippet in your layouts/main.php to have access
+to the message actions:
+
+```php
+echo Nav::widget([
+    'encodeLabels' => false,
+    'items' => [
+    // ...
+    [
+    'label' => '<span class="glyphicon glyphicon-inbox"></span>',
+    'url' => '',
+    'visible' => !Yii::$app->user->isGuest, 'items' => [
+      ['label' => 'Inbox', 'url' => ['/message/message/inbox']],
+      ['label' => 'Sent', 'url' => ['/message/message/sent']],
+      ['label' => 'Compose a Message', 'url' => ['/message/message/compose']],
+      ]
+    ],
+    // ...
+  ]);
+
+```
 ## Contributing to this project
 
 Anyone and everyone is welcome to contribute. Please take a moment to
