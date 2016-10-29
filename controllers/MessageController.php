@@ -50,6 +50,7 @@ class MessageController extends Controller
     {
         $searchModel = new MessageSearch();
         $searchModel->to = Yii::$app->user->id;
+        $searchModel->inbox = true;
 
         $dataProvider = $searchModel->search(Yii::$app->request->queryParams);
 

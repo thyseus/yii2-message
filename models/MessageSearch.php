@@ -12,6 +12,8 @@ use thyseus\message\models\Message;
  */
 class MessageSearch extends Message
 {
+    public $inbox = false;
+
     /**
      * @inheritdoc
      */
@@ -71,6 +73,9 @@ class MessageSearch extends Message
             'created_at' => $this->created_at,
             'status' => $this->status,
         ]);
+
+        if($this->inbox)
+          $query->andFilterWhere(['>=', 'status', 0]);
 
         $query->andFilterWhere(['like', 'hash', $this->hash])
             ->andFilterWhere(['like', 'title', $this->title])

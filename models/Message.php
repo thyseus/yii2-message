@@ -15,6 +15,7 @@ use yii\db\Expression;
 
 class Message extends ActiveRecord
 {
+    const STATUS_DELETED = -1;
     const STATUS_UNREAD = 0;
     const STATUS_READ = 1;
     const STATUS_ANSWERED = 2;
@@ -72,6 +73,11 @@ class Message extends ActiveRecord
             'message' => Yii::t('message', 'message'),
             'created_at' => Yii::t('message', 'sent at'),
         ];
+    }
+
+    public function delete()
+    {
+      return $this->updateAttributes(['status' => Message::STATUS_DELETED]);
     }
 
     public function getRecipient()

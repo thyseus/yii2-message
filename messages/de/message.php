@@ -16,4 +16,6 @@ return [
     'Answer' => 'Antwort',
     'Delete' => 'Löschen',
     'Are you sure you want to delete this message?' => 'Sind Sie sicher, dass Sie diese Nachricht löschen wollen?',
+    'The requested message does not exist.' => 'Die angeforderte Nachricht existiert nicht.',
+    'You are not allowed to access this message.' => 'Sie sind nicht befugt, diese Nachricht aufzurufen.',
 ];
