@@ -9,6 +9,7 @@ namespace thyseus\message\models;
 
 use yii;
 use yii\behaviors\AttributeBehavior;
+use yii\behaviors\BlameableBehavior;
 use yii\behaviors\TimestampBehavior;
 use yii\db\ActiveRecord;
 use yii\db\Expression;
@@ -30,6 +31,11 @@ class Message extends ActiveRecord
     {
         return [
             [
+                'class' => BlameableBehavior::className(),
+                'createdByAttribute' => 'from',
+                'updatedByAttribute' => null
+            ],
+            [
                 'class' => AttributeBehavior::className(),
                 'attributes' => [ ActiveRecord::EVENT_BEFORE_INSERT => 'hash' ],
                 'value' => md5(uniqid(rand(), true)),
@@ -41,14 +47,6 @@ class Message extends ActiveRecord
                 'value' => new Expression('NOW()'),
             ],
         ];
-    }
-
-    public function beforeValidate()
-    {
-        if (!$this->from)
-            $this->from = Yii::$app->user->id;
-
-        return parent::beforeValidate();
     }
 
     public function rules()
