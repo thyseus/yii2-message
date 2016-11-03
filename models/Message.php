@@ -8,6 +8,7 @@
 namespace thyseus\message\models;
 
 use yii;
+use yii\behaviors\AttributeBehavior;
 use yii\behaviors\TimestampBehavior;
 use yii\db\ActiveRecord;
 use yii\db\Expression;
@@ -29,6 +30,11 @@ class Message extends ActiveRecord
     {
         return [
             [
+                'class' => AttributeBehavior::className(),
+                'attributes' => [ ActiveRecord::EVENT_BEFORE_INSERT => 'hash' ],
+                'value' => md5(uniqid(rand(), true)),
+            ],
+            [
                 'class' => TimestampBehavior::className(),
                 'createdAtAttribute' => 'created_at',
                 'updatedAtAttribute' => null,
@@ -39,13 +45,8 @@ class Message extends ActiveRecord
 
     public function beforeValidate()
     {
-        $to_user = new Yii::$app->controller->module->userModelClass;
-
         if (!$this->from)
             $this->from = Yii::$app->user->id;
-
-        if (!$this->hash)
-            $this->hash = md5(uniqid(rand(), true));
 
         return parent::beforeValidate();
     }
