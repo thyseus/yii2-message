@@ -41,9 +41,6 @@ class Message extends ActiveRecord
     {
         $to_user = new Yii::$app->controller->module->userModelClass;
 
-        if (!$to_user->findOne($this->to))
-            $this->addError('to', Yii::t('message', 'Recipient has not been found'));
-
         if (!$this->from)
             $this->from = Yii::$app->user->id;
 
@@ -59,7 +56,12 @@ class Message extends ActiveRecord
             [['from', 'to', 'title'], 'required'],
             [['from', 'to'], 'integer'],
             [['title', 'message'], 'string'],
-            [['title'], 'string', 'max' => 255]
+            [['title'], 'string', 'max' => 255],
+            [['to'], 'exist',
+                'targetClass' => Yii::$app->getModule('message')->userModelClass,
+                'targetAttribute' => 'id',
+                'message' => Yii::t('message', 'Recipient has not been found'),
+            ]
         ];
     }
 
@@ -77,7 +79,7 @@ class Message extends ActiveRecord
 
     public function delete()
     {
-      return $this->updateAttributes(['status' => Message::STATUS_DELETED]);
+        return $this->updateAttributes(['status' => Message::STATUS_DELETED]);
     }
 
     public function getRecipient()
