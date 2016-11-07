@@ -52,8 +52,8 @@ class Message extends ActiveRecord
     public function rules()
     {
         return [
-            [['from', 'to', 'title'], 'required'],
-            [['from', 'to'], 'integer'],
+            [['to', 'title'], 'required'],
+            [['to'], 'integer'],
             [['title', 'message'], 'string'],
             [['title'], 'string', 'max' => 255],
             [['to'], 'exist',

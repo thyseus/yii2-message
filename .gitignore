@@ -29,3 +29,5 @@ phpunit.phar
 tests/_app/config/db.local.php
 tests/_support/_generated
 tests/_output/*
+
+tests/_output/*
