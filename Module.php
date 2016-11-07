@@ -15,7 +15,9 @@ use yii\i18n\PhpMessageSource;
 
 class Module extends BaseModule
 {
-    const VERSION = '0.0.1';
+    const VERSION = '0.1.0-dev';
+
+    public $defaultRoute = 'message/message/inbox';
 
     /** @var array Model map */
     public $modelMap = [];
@@ -34,17 +36,20 @@ class Module extends BaseModule
 
     /** @var array The rules to be used in URL management. */
     public $urlRules = [
-        'inbox' => 'inbox',
-        '<hash:\d+>' => 'show',
-        'compose/<hash:\d+>' => 'compose',
-        'delete/<hash:\d+>' => 'delete',
+        'message/inbox' => 'message/message/inbox',
+        'message/sent' => 'message/message/sent',
+        'message/compose/to/<to:\d+>/answers/<answers:\d+>' => 'message/message/compose',
+        'message/compose/to/<to:\d+>' => 'message/message/compose',
+        'message/compose/' => 'message/message/compose',
+        'message/delete/<hash:\d+>' => 'message/message/delete',
+        'message/<hash:\w+>' => 'message/message/view',
     ];
 
     public function init()
     {
         if (!isset(Yii::$app->get('i18n')->translations['message*'])) {
             Yii::$app->get('i18n')->translations['message*'] = [
-                'class'    => PhpMessageSource::className(),
+                'class' => PhpMessageSource::className(),
                 'basePath' => __DIR__ . '/messages',
                 'sourceLanguage' => 'en-US'
             ];
