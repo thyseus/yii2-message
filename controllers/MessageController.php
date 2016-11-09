@@ -28,7 +28,7 @@ class MessageController extends Controller
                 'rules' => [
                     [
                         'allow' => true,
-                        'actions' => ['inbox', 'sent', 'compose', 'view', 'delete'],
+                        'actions' => ['inbox', 'sent', 'compose', 'view', 'delete', 'mark-all-as-read'],
                         'roles' => ['@'],
                     ],
                 ],
@@ -78,6 +78,22 @@ class MessageController extends Controller
             'searchModel' => $searchModel,
             'dataProvider' => $dataProvider,
         ]);
+    }
+
+
+    /**
+     * Mark all messages as read
+     * @param integer $id
+     * @return mixed
+     */
+    public function actionMarkAllAsRead()
+    {
+      foreach(Message::find()->where([
+        'to' => Yii::$app->user->id,
+        'status' => Message::STATUS_UNREAD])->all() as $message)
+        $message->updateAttributes(['status' => Message::STATUS_READ]);
+
+        return $this->goBack();
     }
 
     /**

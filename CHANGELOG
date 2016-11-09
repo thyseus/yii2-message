@@ -1,6 +1,7 @@
 0.1.1
 ENH: add 'mailMessages' function
 ENH: dont display 'answer' button for my own messages
+ENH: add MessageController->actionMarkAllAsRead()
 SECURITY: disallow deletion of foreign messages
 
 
