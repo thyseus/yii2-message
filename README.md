@@ -35,19 +35,24 @@ The following Actions are possible:
 * inbox: https://your-domain/message/message/inbox
 * sent messages: https://your-domain/message/message/sent
 * compose a message: https://your-domain/message/message/compose
-* delete a message: https://your-domain/message/message/delete/hash=<hash>
-* view a message: https://your-domain/message/message/view/hash=<hash>
+* delete a message: https://your-domain/message/message/delete/hash/<hash>
+* view a message: https://your-domain/message/message/view/hash/<hash>
 
-You can place this code snippet in your layouts/main.php to have access
+You can place this code snippet in your layouts/main.php to give your users access
 to the message actions:
 
 ```php
+$messagelabel = '<span class="glyphicon glyphicon-envelope"></span>';
+$unread = Message::find()->where(['to' => $user->id, 'status' => 0])->count();
+if ($unread > 0)
+      $messagelabel .= '(' . $unread . ')';
+      
 echo Nav::widget([
-    'encodeLabels' => false,
+    'encodeLabels' => false, // important to display HTML-code (glyphicons)
     'items' => [
     // ...
     [
-    'label' => '<span class="glyphicon glyphicon-inbox"></span>',
+    'label' => $messagelabel,
     'url' => '',
     'visible' => !Yii::$app->user->isGuest, 'items' => [
       ['label' => 'Inbox', 'url' => ['/message/message/inbox']],
@@ -57,8 +62,11 @@ echo Nav::widget([
     ],
     // ...
   ]);
-
 ```
+
+For some url rules, you can copy Module::$urlRules into your 'rules' section of
+the URL Manager.
+
 ## Contributing to this project
 
 Anyone and everyone is welcome to contribute. Please take a moment to
