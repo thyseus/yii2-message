@@ -1,3 +1,7 @@
-0.1.1 ENH: add 'mailMessages' function
+0.1.1
+ENH: add 'mailMessages' function
+ENH: dont display 'answer' button for my own messages
+SECURITY: disallow deletion of foreign messages
+
 
 0.1.0 initial release

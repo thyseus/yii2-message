@@ -15,9 +15,11 @@ $this->params['breadcrumbs'][] = $this->title;
     <h1><?= Html::encode($this->title) ?></h1>
 
     <p>
-        <?= Html::a(Yii::t('message', 'Answer'), ['compose', 'to' => $message->from, 'answers' => $message->hash], [
+        <?php
+        if($message->from != Yii::$app->user->id)
+          echo Html::a(Yii::t('message', 'Answer'), ['compose', 'to' => $message->from, 'answers' => $message->hash], [
             'class' => 'btn btn-primary',
-        ]) ?>
+          ]) ?>
 
         <?php
         if($message->to == Yii::$app->user->id)
