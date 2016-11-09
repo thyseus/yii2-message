@@ -134,9 +134,14 @@ class MessageController extends Controller
      */
     public function actionDelete($hash)
     {
-        $this->findModel($hash)->delete();
+      $model = $this->findModel($hash);
 
-        return $this->redirect(['inbox']);
+      if($model->to != Yii::$app->user->id)
+          throw new yii\web\ForbiddenHttpException;
+
+      $model->delete();
+
+      return $this->redirect(['inbox']);
     }
 
     /**

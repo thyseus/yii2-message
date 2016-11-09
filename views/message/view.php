@@ -19,13 +19,15 @@ $this->params['breadcrumbs'][] = $this->title;
             'class' => 'btn btn-primary',
         ]) ?>
 
-        <?= Html::a(Yii::t('message', 'Delete'), ['delete', 'hash' => $message->hash], [
+        <?php
+        if($message->to == Yii::$app->user->id)
+          echo Html::a(Yii::t('message', 'Delete'), ['delete', 'hash' => $message->hash], [
             'class' => 'btn btn-danger',
             'data' => [
-                'confirm' => Yii::t('message', 'Are you sure you want to delete this message?'),
-                'method' => 'post',
+              'confirm' => Yii::t('message', 'Are you sure you want to delete this message?'),
+              'method' => 'post',
             ],
-        ]) ?>
+          ]) ?>
     </p>
 
     <?= DetailView::widget([
