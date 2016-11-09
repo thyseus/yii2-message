@@ -22,6 +22,9 @@ class Message extends ActiveRecord
     const STATUS_READ = 1;
     const STATUS_ANSWERED = 2;
 
+    const EVENT_BEFORE_MAIL = 'before_mail';
+    const EVENT_AFTER_MAIL = 'after_mail';
+
     public static function tableName()
     {
         return '{{%message}}';
@@ -37,7 +40,7 @@ class Message extends ActiveRecord
             ],
             [
                 'class' => AttributeBehavior::className(),
-                'attributes' => [ ActiveRecord::EVENT_BEFORE_INSERT => 'hash' ],
+                'attributes' => [ActiveRecord::EVENT_BEFORE_INSERT => 'hash'],
                 'value' => md5(uniqid(rand(), true)),
             ],
             [
@@ -64,6 +67,41 @@ class Message extends ActiveRecord
         ];
     }
 
+    public function afterSave($insert, $changedAttributes)
+    {
+        if ($insert && isset($this->recipient->email)) {
+            $mailMessages = Yii::$app->getModule('message')->mailMessages;
+            if ($mailMessages === true || (is_callable($mailMessages) && $mailMessages()))
+                $this->sendEmailToRecipient();
+        }
+
+        return parent::afterSave($insert, $changedAttributes);
+    }
+
+    public function sendEmailToRecipient()
+    {
+        $this->trigger(Message::EVENT_BEFORE_MAIL);
+
+        Yii::$app->mailer->compose()
+            ->setTo($this->recipient->email)
+            ->setFrom(Yii::$app->params['adminEmail'])
+            ->setSubject($this->title)
+            ->setHtmlBody($this->message)
+            ->send();
+
+        $this->trigger(Message::EVENT_AFTER_MAIL);
+    }
+
+    public static function compose($from, $to, $title, $message = '')
+    {
+        $model = new Message;
+        $model->from = $from;
+        $model->to = $to;
+        $model->title = $title;
+        $model->message = $message;
+        return $model->save();
+    }
+
     public function attributeLabels()
     {
         return [
@@ -83,12 +121,12 @@ class Message extends ActiveRecord
 
     public function getRecipient()
     {
-        return $this->hasOne(Yii::$app->controller->module->userModelClass, ['id' => 'to']);
+        return $this->hasOne(Yii::$app->getModule('message')->userModelClass, ['id' => 'to']);
     }
 
     public function getSender()
     {
-        return $this->hasOne(Yii::$app->controller->module->userModelClass, ['id' => 'from']);
+        return $this->hasOne(Yii::$app->getModule('message')->userModelClass, ['id' => 'from']);
     }
 
 }
