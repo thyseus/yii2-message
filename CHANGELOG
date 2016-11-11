@@ -1,4 +1,4 @@
-0.1.1
+0.2.0
 ENH: add 'mailMessages' function
 ENH: dont display 'answer' button for my own messages
 ENH: add MessageController->actionMarkAllAsRead()

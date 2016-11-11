@@ -15,7 +15,7 @@ use yii\i18n\PhpMessageSource;
 
 class Module extends BaseModule
 {
-    const VERSION = '0.1.1-dev';
+    const VERSION = '0.2.0-dev';
 
     public $defaultRoute = 'message/message/inbox';
 
@@ -31,9 +31,9 @@ class Module extends BaseModule
 
     /**
      * @var string Should the message be sent to the recipient by email?
-     * The user model should have an attribute 'email'. Can be a callback so the user can decide
+     * The user model should have an attribute 'email'. Can be a callback so the recipient can decide
      * if he wants to receive messages e.g. 
-     * 'mailMessages' => function() { return Yii::$app->user->profile->i_want_to_receive_messages_by_email; }
+     * 'mailMessages' => function($recipient) { return $recipient->profile->i_want_to_receive_messages_by_email; }
      *
      * @See [[GroupUrlRule::prefix]]
      */

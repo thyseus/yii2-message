@@ -71,7 +71,7 @@ class Message extends ActiveRecord
     {
         if ($insert && isset($this->recipient->email)) {
             $mailMessages = Yii::$app->getModule('message')->mailMessages;
-            if ($mailMessages === true || (is_callable($mailMessages) && $mailMessages()))
+            if ($mailMessages === true || (is_callable($mailMessages) && $mailMessages($this->recipient)))
                 $this->sendEmailToRecipient();
         }
 
