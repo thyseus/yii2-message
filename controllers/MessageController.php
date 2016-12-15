@@ -177,17 +177,23 @@ class MessageController extends Controller
     {
         $model = new Message();
 
-        if ($to)
-            $model->to = $to;
-
-        if ($model->load(Yii::$app->request->post()) && $model->save()) {
-            if ($answers) {
-                $origin = Message::find()->where(['hash' => $answers])->one();
-                if ($origin && $origin->to == Yii::$app->user->id && $origin->status == Message::STATUS_READ)
-                    $origin->updateAttributes(['status' => Message::STATUS_ANSWERED]);
+        if (Yii::$app->request->isPost) {
+            foreach (Yii::$app->request->post()['Message']['to'] as $recipient_id) {
+                $model = new Message();
+                $model->load(Yii::$app->request->post());
+                $model->to = $recipient_id;
+                $model->save();
+                if ($answers) {
+                    $origin = Message::find()->where(['hash' => $answers])->one();
+                    if ($origin && $origin->to == Yii::$app->user->id && $origin->status == Message::STATUS_READ)
+                        $origin->updateAttributes(['status' => Message::STATUS_ANSWERED]);
+                }
             }
             return $this->redirect(['inbox']);
         } else {
+            if ($to)
+                $model->to = [$to];
+
             return $this->render('compose', [
                 'model' => $model,
                 'answers' => $answers,
@@ -202,7 +208,8 @@ class MessageController extends Controller
      * @param integer $id
      * @return mixed
      */
-    public function actionDelete($hash)
+    public
+    function actionDelete($hash)
     {
         $model = $this->findModel($hash);
 

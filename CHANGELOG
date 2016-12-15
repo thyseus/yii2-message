@@ -1,4 +1,5 @@
 0.2.0
+ENH: allow multiple recipients for an message
 ENH: add select2 widget for all dropDownLists
 ENH: add 'ignoreListCallback' function
 ENH: add 'mailMessages' function

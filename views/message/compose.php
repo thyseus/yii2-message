@@ -22,6 +22,9 @@ $this->params['breadcrumbs'][] = $this->title;
 
         <?= $form->field($model, 'to')->widget(Select2::className(), [
             'data' => $possible_recipients,
+            'options' => [
+                'multiple' => true,
+            ],
             'language' => Yii::$app->language ? Yii::$app->language : null,
         ]); ?>
 
