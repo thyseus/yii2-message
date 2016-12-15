@@ -37,6 +37,7 @@ The following Actions are possible:
 * compose a message: https://your-domain/message/message/compose
 * delete a message: https://your-domain/message/message/delete/hash/<hash>
 * view a message: https://your-domain/message/message/view/hash/<hash>
+* manage your ignorelist: https://your-domain/message/message/ignorelist
 
 You can place this code snippet in your layouts/main.php to give your users access
 to the message actions:
@@ -58,6 +59,7 @@ echo Nav::widget([
       ['label' => 'Inbox', 'url' => ['/message/message/inbox']],
       ['label' => 'Sent', 'url' => ['/message/message/sent']],
       ['label' => 'Compose a Message', 'url' => ['/message/message/compose']],
+      ['label' => 'Manage your Ignorelist', 'url' => ['/message/message/ignorelist']],
       ]
     ],
     // ...

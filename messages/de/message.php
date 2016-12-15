@@ -15,8 +15,13 @@ return [
     'answered' => 'Beantwortet',
     'Answer' => 'Antwort',
     'Delete' => 'Löschen',
+    'Send' => 'Senden',
+    'Save' => 'Speichern',
+    'Messages' => 'Nachrichten',
     'Are you sure you want to delete this message?' => 'Sind Sie sicher, dass Sie diese Nachricht löschen wollen?',
     'The requested message does not exist.' => 'Die angeforderte Nachricht existiert nicht.',
     'You are not allowed to access this message.' => 'Sie sind nicht befugt, diese Nachricht aufzurufen.',
     'Recipient has not been found' => 'Empfänger wurde nicht gefunden',
+    'The recipient has added you to the ignore list. You can not send any messages to this person.' => 'Der Empfänger hat Sie auf seine Ignorelist gesetzt. Sie können keine Nachrichten an diese Person senden.',
+    'Ignorelist' => 'Blockierte Kontakte',
 ];

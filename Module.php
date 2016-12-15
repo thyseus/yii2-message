@@ -23,7 +23,7 @@ class Module extends BaseModule
     public $modelMap = [];
 
     /**
-     * @var string The prefix for message module URL.
+     * @var string The prefix for message module
      *
      * @See [[GroupUrlRule::prefix]]
      */

@@ -7,9 +7,9 @@
 
 namespace thyseus\message\models;
 
+use thyseus\message\validators\IgnoreListValidator;
 use yii;
 use yii\behaviors\AttributeBehavior;
-use yii\behaviors\BlameableBehavior;
 use yii\behaviors\TimestampBehavior;
 use yii\db\ActiveRecord;
 use yii\db\Expression;
@@ -30,14 +30,33 @@ class Message extends ActiveRecord
         return '{{%message}}';
     }
 
+    public static function compose($from, $to, $title, $message = '')
+    {
+        $model = new Message;
+        $model->from = $from;
+        $model->to = $to;
+        $model->title = $title;
+        $model->message = $message;
+        return $model->save();
+    }
+
+    public static function getPossibleRecipients($for_user)
+    {
+        $user = new Yii::$app->controller->module->userModelClass;
+
+        $ignored_users = [];
+
+        foreach(IgnoreListEntry::find()->select('user_id')->where(['blocks_user_id' => $for_user])->asArray()->all() as $ignore)
+            $ignored_users[] = $ignore['user_id'];
+
+        $users = $user::find()->where(['!=', 'id', Yii::$app->user->id])->andWhere(['not in', 'id', $ignored_users]);
+
+        return $users->all();
+    }
+
     public function behaviors()
     {
         return [
-            [
-                'class' => BlameableBehavior::className(),
-                'createdByAttribute' => 'from',
-                'updatedByAttribute' => null
-            ],
             [
                 'class' => AttributeBehavior::className(),
                 'attributes' => [ActiveRecord::EVENT_BEFORE_INSERT => 'hash'],
@@ -59,12 +78,22 @@ class Message extends ActiveRecord
             [['to'], 'integer'],
             [['title', 'message'], 'string'],
             [['title'], 'string', 'max' => 255],
+            [['to'], IgnoreListValidator::className()],
             [['to'], 'exist',
                 'targetClass' => Yii::$app->getModule('message')->userModelClass,
                 'targetAttribute' => 'id',
                 'message' => Yii::t('message', 'Recipient has not been found'),
             ]
         ];
+    }
+
+    // BlameableBehavior can not be used because the ignoreListValidator needs to have 'from' filled at validation time.
+    public function beforeValidate()
+    {
+        if (!$this->from)
+            $this->from = Yii::$app->user->id;
+
+        return parent::beforeValidate();
     }
 
     public function afterSave($insert, $changedAttributes)
@@ -78,6 +107,9 @@ class Message extends ActiveRecord
         return parent::afterSave($insert, $changedAttributes);
     }
 
+    // returns an array of possible recipients for the given user. Applies the ignorelist and applies possible custom
+    // logic.
+
     public function sendEmailToRecipient()
     {
         $this->trigger(Message::EVENT_BEFORE_MAIL);
@@ -90,16 +122,6 @@ class Message extends ActiveRecord
             ->send();
 
         $this->trigger(Message::EVENT_AFTER_MAIL);
-    }
-
-    public static function compose($from, $to, $title, $message = '')
-    {
-        $model = new Message;
-        $model->from = $from;
-        $model->to = $to;
-        $model->title = $title;
-        $model->message = $message;
-        return $model->save();
     }
 
     public function attributeLabels()

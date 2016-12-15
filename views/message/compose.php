@@ -1,5 +1,6 @@
 <?php
 
+use kartik\select2\Select2;
 use yii\helpers\ArrayHelper;
 use yii\helpers\Html;
 use yii\widgets\ActiveForm;
@@ -19,11 +20,10 @@ $this->params['breadcrumbs'][] = $this->title;
 
         <?php $form = ActiveForm::begin(); ?>
 
-        <?php $user = new Yii::$app->controller->module->userModelClass; ?>
-
-        <?= $form->field($model, 'to')->dropDownList(
-            ArrayHelper::map(
-                $user::find()->where('id != ' . Yii::$app->user->id)->all(), 'id', 'username')) ?>
+        <?= $form->field($model, 'to')->widget(Select2::className(), [
+            'data' => $possible_recipients,
+            'language' => Yii::$app->language ? Yii::$app->language : null,
+        ]); ?>
 
         <?= $form->field($model, 'title')->textInput(['maxlength' => true]) ?>
 
