@@ -15,7 +15,7 @@ use yii\i18n\PhpMessageSource;
 
 class Module extends BaseModule
 {
-    const VERSION = '0.2.0-dev';
+    const VERSION = '0.2.0';
 
     public $defaultRoute = 'message/message/inbox';
 

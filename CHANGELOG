@@ -1,4 +1,7 @@
-0.2.0
+0.3.0
+- to be released
+
+0.2.0, released on 2016-12-16
 ENH: allow multiple recipients for an message
 ENH: add select2 widget for all dropDownLists
 ENH: add 'ignoreListCallback' function
@@ -6,6 +9,5 @@ ENH: add 'mailMessages' function
 ENH: dont display 'answer' button for my own messages
 ENH: add MessageController->actionMarkAllAsRead()
 SECURITY: disallow deletion of foreign messages
-
 
 0.1.0 initial release
