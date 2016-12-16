@@ -30,6 +30,22 @@ class Message extends ActiveRecord
         return '{{%message}}';
     }
 
+    public function rules()
+    {
+        return [
+            [['to', 'title'], 'required'],
+            [['to'], 'integer'],
+            [['title', 'message'], 'string'],
+            [['title'], 'string', 'max' => 255],
+            [['to'], IgnoreListValidator::className()],
+            [['to'], 'exist',
+                'targetClass' => Yii::$app->getModule('message')->userModelClass,
+                'targetAttribute' => 'id',
+                'message' => Yii::t('message', 'Recipient has not been found'),
+            ]
+        ];
+    }
+
     public static function compose($from, $to, $title, $message = '')
     {
         $model = new Message;
@@ -49,9 +65,12 @@ class Message extends ActiveRecord
         foreach(IgnoreListEntry::find()->select('user_id')->where(['blocks_user_id' => $for_user])->asArray()->all() as $ignore)
             $ignored_users[] = $ignore['user_id'];
 
-        $users = $user::find()->where(['!=', 'id', Yii::$app->user->id])->andWhere(['not in', 'id', $ignored_users]);
+        $users = $user::find()->where(['!=', 'id', Yii::$app->user->id])->andWhere(['not in', 'id', $ignored_users])->all();
 
-        return $users->all();
+        if(is_callable(Yii::$app->getModule('message')->recipientsFilterCallback))
+            $users = call_user_func(Yii::$app->getModule('message')->recipientsFilterCallback, $users);
+
+        return $users;
     }
 
     public function behaviors()
@@ -68,22 +87,6 @@ class Message extends ActiveRecord
                 'updatedAtAttribute' => null,
                 'value' => new Expression('NOW()'),
             ],
-        ];
-    }
-
-    public function rules()
-    {
-        return [
-            [['to', 'title'], 'required'],
-            [['to'], 'integer'],
-            [['title', 'message'], 'string'],
-            [['title'], 'string', 'max' => 255],
-            [['to'], IgnoreListValidator::className()],
-            [['to'], 'exist',
-                'targetClass' => Yii::$app->getModule('message')->userModelClass,
-                'targetAttribute' => 'id',
-                'message' => Yii::t('message', 'Recipient has not been found'),
-            ]
         ];
     }
 
