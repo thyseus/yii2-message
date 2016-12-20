@@ -1,6 +1,6 @@
 <?php
-use yii\helpers\Html;
 use yii\grid\GridView;
+use yii\helpers\Html;
 use yii\widgets\Pjax;
 
 /* @var $this yii\web\View */
@@ -35,9 +35,9 @@ $this->params['breadcrumbs'][] = $this->title;
             ],
             [
                 'attribute' => 'title',
-                'format' => 'raw',
+                'format' => 'raw', // do not use 'format' => 'html' because the 'data-pjax=0' gets swallowed.
                 'value' => function ($data) {
-                    return Html::a($data->title, ['view', 'hash' => $data->hash]);
+                    return Html::a($data->title, ['view', 'hash' => $data->hash], ['data-pjax' => 0]);
                 },
             ],
         ],
