@@ -39,7 +39,7 @@ $this->params['breadcrumbs'][] = $this->title;
             ['label' => Yii::t('message', 'from'), 'value' => $message->sender->username ],
             ['label' => Yii::t('message', 'to'), 'value' => $message->recipient->username ],
             'title',
-            'message:ntext',
+            'message:html',
         ],
     ]) ?>
 
