@@ -1,5 +1,6 @@
 <?php
 
+use thyseus\message\models\Message;
 use yii\helpers\Html;
 use yii\widgets\DetailView;
 
@@ -16,10 +17,19 @@ $this->params['breadcrumbs'][] = $this->title;
 
     <p>
         <?php
+        $ignored = Message::isUserIgnoredBy($message->from, Yii::$app->user->id);
+
         if($message->from != Yii::$app->user->id)
-          echo Html::a(Yii::t('message', 'Answer'), ['compose', 'to' => $message->from, 'answers' => $message->hash], [
-            'class' => 'btn btn-primary',
-          ]) ?>
+            if($ignored)
+                echo Html::tag('span', Yii::t('message', 'Answer'), [
+                    'class' => 'btn btn-primary disabled',
+                    'title' => $ignored ? Yii::t(
+                        'message', 'The recipient has added you to the ignore list. You can not send any messages to this person.') : '',
+                ]);
+            else
+                echo Html::a(Yii::t('message', 'Answer'), ['compose', 'to' => $message->from, 'answers' => $message->hash], [
+                    'class' => 'btn btn-primary',
+                ]) ?>
 
         <?php
         if($message->to == Yii::$app->user->id)

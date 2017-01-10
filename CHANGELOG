@@ -1,5 +1,5 @@
-0.3.0
-- to be released
+0.3.0 - to be released
+ENH: add 'answerPrefix' defaults to 'Re: '
 
 0.2.0, released on 2016-12-16
 ENH: allow multiple recipients for an message

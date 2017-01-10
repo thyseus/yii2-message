@@ -14,7 +14,6 @@ use yii\behaviors\TimestampBehavior;
 use yii\db\ActiveRecord;
 use yii\db\Expression;
 
-
 class Message extends ActiveRecord
 {
     const STATUS_DELETED = -1;
@@ -54,6 +53,20 @@ class Message extends ActiveRecord
         $model->title = $title;
         $model->message = $message;
         return $model->save();
+    }
+
+    public static function isUserIgnoredBy($victim, $offender)
+    {
+        foreach(Message::getIgnoredUsers($victim) as $ignored_user)
+            if($offender == $ignored_user->blocks_user_id)
+                return true;
+
+        return false;
+    }
+
+    public static function getIgnoredUsers($for_user)
+    {
+        return IgnoreListEntry::find()->where(['user_id' => $for_user])->all();
     }
 
     public static function getPossibleRecipients($for_user)

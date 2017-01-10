@@ -82,7 +82,11 @@ class MessageController extends Controller
                         'blocks_user_id' => $ignored_user,
                         'created_at' => date('Y-m-d G:i:s'),
                     ]);
-                    $model->save();
+
+                    if ($model->save())
+                        Yii::$app->session->setFlash('success', Yii::t('message', 'The list of ignored users has been saved'));
+                    else
+                        Yii::$app->session->setFlash('error', Yii::t('message', 'The list of ignored users could not be saved'));
                 }
         }
 
@@ -176,6 +180,17 @@ class MessageController extends Controller
     public function actionCompose($to = null, $answers = null)
     {
         $model = new Message();
+        $possible_recipients = Message::getPossibleRecipients(Yii::$app->user->id);
+
+        if($answers) {
+            $origin = Message::find()->where(['hash' => $answers])->one();
+
+            if(!$origin)
+                throw new NotFoundHttpException(Yii::t('message', 'Message to be answered can not be found'));
+
+            if(Message::isUserIgnoredBy($to, Yii::$app->user->id))
+                throw new ForbiddenHttpException(Yii::t('message', 'The recipient has added you to the ignore list. You can not send any messages to this person.'));
+        }
 
         if (Yii::$app->request->isPost) {
             foreach (Yii::$app->request->post()['Message']['to'] as $recipient_id) {
@@ -184,7 +199,6 @@ class MessageController extends Controller
                 $model->to = $recipient_id;
                 $model->save();
                 if ($answers) {
-                    $origin = Message::find()->where(['hash' => $answers])->one();
                     if ($origin && $origin->to == Yii::$app->user->id && $origin->status == Message::STATUS_READ)
                         $origin->updateAttributes(['status' => Message::STATUS_ANSWERED]);
                 }
@@ -194,10 +208,20 @@ class MessageController extends Controller
             if ($to)
                 $model->to = [$to];
 
+            if ($answers) {
+                $prefix = Yii::$app->getModule('message')->answerPrefix;
+
+                 // avoid stacking of prefixes (Re: Re: Re:)
+                if(substr($origin->title, 0, strlen($prefix)) !== $prefix)
+                    $model->title = $prefix . $origin->title;
+                else
+                    $model->title = $origin->title;
+            }
+
             return $this->render('compose', [
                 'model' => $model,
                 'answers' => $answers,
-                'possible_recipients' => ArrayHelper::map(Message::getPossibleRecipients(Yii::$app->user->id), 'id', 'username'),
+                'possible_recipients' => ArrayHelper::map($possible_recipients, 'id', 'username'),
             ]);
         }
     }
@@ -208,13 +232,12 @@ class MessageController extends Controller
      * @param integer $id
      * @return mixed
      */
-    public
-    function actionDelete($hash)
+    public function actionDelete($hash)
     {
         $model = $this->findModel($hash);
 
         if ($model->to != Yii::$app->user->id)
-            throw new yii\web\ForbiddenHttpException;
+            throw new ForbiddenHttpException;
 
         $model->delete();
 

@@ -15,7 +15,7 @@ use yii\i18n\PhpMessageSource;
 
 class Module extends BaseModule
 {
-    const VERSION = '0.2.0';
+    const VERSION = '0.3.0-dev';
 
     public $defaultRoute = 'message/message/inbox';
 
@@ -36,6 +36,12 @@ class Module extends BaseModule
      * 'mailMessages' => function($recipient) { return $recipient->profile->i_want_to_receive_messages_by_email; }
      */
     public $mailMessages = true;
+
+    /**
+     * @var string A string that should be prefixed to the title when answering an message.
+     * Defaults to 'Re: ' and can be adjusted for foreign languages, for example 'Aw: ' in german.
+     */
+    public $answerPrefix = 'Re: ';
 
     /**
      * @var string Callback that defines which users are not possible to write messages to.

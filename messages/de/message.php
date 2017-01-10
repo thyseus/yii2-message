@@ -23,5 +23,8 @@ return [
     'You are not allowed to access this message.' => 'Sie sind nicht befugt, diese Nachricht aufzurufen.',
     'Recipient has not been found' => 'Empfänger wurde nicht gefunden',
     'The recipient has added you to the ignore list. You can not send any messages to this person.' => 'Der Empfänger hat Sie auf seine Ignorelist gesetzt. Sie können keine Nachrichten an diese Person senden.',
+    'Message to be answered can not be found' => 'Die Nachricht, auf die geantwortet werden soll, kann nicht gefunden werden',
     'Ignorelist' => 'Blockierte Kontakte',
+    'The list of ignored users has been saved' => 'Die blockierten Kontakte wurden gespeichert.',
+    'The list of ignored users could not be saved' => 'Die blockierten Kontakte konnten nicht gespeichert werden.'
 ];
