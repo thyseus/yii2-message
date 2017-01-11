@@ -26,7 +26,7 @@ $this->params['breadcrumbs'][] = $this->title;
                 'headerOptions' => ['style' => 'width: 200px;'],
                 'attribute' => 'to',
                 'value' => function ($data) {
-                    return $data->recipient->username;
+                    return $data->recipientLabel;
                 }
             ],
             [

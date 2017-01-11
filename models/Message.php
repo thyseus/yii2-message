@@ -157,6 +157,14 @@ class Message extends ActiveRecord
         return $this->updateAttributes(['status' => Message::STATUS_DELETED]);
     }
 
+    public function getRecipientLabel()
+    {
+        if(!$this->recipient)
+            return Yii::t('message', 'Removed user');
+        else
+            return $this->recipient->username;
+    }
+
     public function getRecipient()
     {
         return $this->hasOne(Yii::$app->getModule('message')->userModelClass, ['id' => 'to']);
