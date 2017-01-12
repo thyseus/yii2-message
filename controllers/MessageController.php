@@ -130,7 +130,7 @@ class MessageController extends Controller
             'status' => Message::STATUS_UNREAD])->all() as $message)
             $message->updateAttributes(['status' => Message::STATUS_READ]);
 
-        return $this->goBack();
+        return $this->redirect(Yii::$app->request->referrer);
     }
 
     /**
