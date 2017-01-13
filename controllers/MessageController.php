@@ -53,6 +53,8 @@ class MessageController extends Controller
         $searchModel->to = Yii::$app->user->id;
         $searchModel->inbox = true;
 
+        Yii::$app->user->setReturnUrl(['//message/message/inbox']);
+
         $dataProvider = $searchModel->search(Yii::$app->request->queryParams);
 
         $users = ArrayHelper::map(
@@ -71,6 +73,8 @@ class MessageController extends Controller
      */
     public function actionIgnorelist()
     {
+        Yii::$app->user->setReturnUrl(['//message/message/ignorelist']);
+        
         if (Yii::$app->request->isPost) {
             IgnoreListEntry::deleteAll(['user_id' => Yii::$app->user->id]);
 
@@ -110,6 +114,8 @@ class MessageController extends Controller
         $searchModel = new MessageSearch();
         $searchModel->from = Yii::$app->user->id;
         $dataProvider = $searchModel->search(Yii::$app->request->queryParams);
+        
+        Yii::$app->user->setReturnUrl(['//message/message/sent']);
 
         return $this->render('sent', [
             'searchModel' => $searchModel,
@@ -182,6 +188,9 @@ class MessageController extends Controller
         $model = new Message();
         $possible_recipients = Message::getPossibleRecipients(Yii::$app->user->id);
 
+        if(!Yii::$app->user->returnUrl)
+            Yii::$app->user->setReturnUrl(Yii::$app->request->referrer);
+        
         if($answers) {
             $origin = Message::find()->where(['hash' => $answers])->one();
 
@@ -203,7 +212,7 @@ class MessageController extends Controller
                         $origin->updateAttributes(['status' => Message::STATUS_ANSWERED]);
                 }
             }
-            return $this->redirect(['inbox']);
+            return $this->goBack();
         } else {
             if ($to)
                 $model->to = [$to];
