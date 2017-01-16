@@ -34,7 +34,7 @@ class Message extends ActiveRecord
         return [
             [['to', 'title'], 'required'],
             [['to'], 'integer'],
-            [['title', 'message'], 'string'],
+            [['title', 'message', 'context'], 'string'],
             [['title'], 'string', 'max' => 255],
             [['to'], IgnoreListValidator::className()],
             [['to'], 'exist',
@@ -149,6 +149,7 @@ class Message extends ActiveRecord
             'title' => Yii::t('message', 'title'),
             'message' => Yii::t('message', 'message'),
             'created_at' => Yii::t('message', 'sent at'),
+            'context' => Yii::t('message', 'context'),
         ];
     }
 

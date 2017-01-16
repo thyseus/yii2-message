@@ -19,8 +19,8 @@ $this->params['breadcrumbs'][] = $this->title;
         <?php
         $ignored = Message::isUserIgnoredBy($message->from, Yii::$app->user->id);
 
-        if($message->from != Yii::$app->user->id)
-            if($ignored)
+        if ($message->from != Yii::$app->user->id)
+            if ($ignored)
                 echo Html::tag('span', Yii::t('message', 'Answer'), [
                     'class' => 'btn btn-primary disabled',
                     'title' => $ignored ? Yii::t(
@@ -32,23 +32,33 @@ $this->params['breadcrumbs'][] = $this->title;
                 ]) ?>
 
         <?php
-        if($message->to == Yii::$app->user->id)
-          echo Html::a(Yii::t('message', 'Delete'), ['delete', 'hash' => $message->hash], [
-            'class' => 'btn btn-danger',
-            'data' => [
-              'confirm' => Yii::t('message', 'Are you sure you want to delete this message?'),
-              'method' => 'post',
-            ],
-          ]) ?>
+        if ($message->to == Yii::$app->user->id)
+            echo Html::a(Yii::t('message', 'Delete'), ['delete', 'hash' => $message->hash], [
+                'class' => 'btn btn-danger',
+                'data' => [
+                    'confirm' => Yii::t('message', 'Are you sure you want to delete this message?'),
+                    'method' => 'post',
+                ],
+            ]) ?>
     </p>
 
     <?= DetailView::widget([
         'model' => $message,
         'attributes' => [
             'created_at',
-            ['label' => Yii::t('message', 'from'), 'value' => $message->sender->username ],
-            ['label' => Yii::t('message', 'to'), 'value' => $message->recipient->username ],
+            ['label' => Yii::t('message', 'from'), 'value' => $message->sender->username],
+            ['label' => Yii::t('message', 'to'), 'value' => $message->recipient->username],
             'title',
+            [
+                'attribute' => 'context',
+                'visible' => Yii::$app->getModule('message')->contextRoute && $message->context,
+                'format' => 'html',
+                'value' => function ($data) {
+                    $url = Yii::$app->getModule('message')->contextRoute;
+                    $url['id'] = $data->context;
+                    return Html::a($data->context, $url);
+                },
+            ],
             'message:html',
         ],
     ]) ?>

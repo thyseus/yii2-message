@@ -44,6 +44,16 @@ class Module extends BaseModule
     public $answerPrefix = 'Re: ';
 
     /**
+     * @var string A route that points to the entity inside your application that gets used to
+     * build the url of the related entity when using the context function.
+     *
+     * Example: ['/mymodel/view']
+     *
+     * The appropriate 'id' gets appended automatically.
+     */
+    public $contextRoute = false;
+
+    /**
      * @var string Callback that defines which users are not possible to write messages to.
      * Use this if you have restrictions about which user is able to write to whom.
      *

@@ -32,6 +32,8 @@ $this->params['breadcrumbs'][] = $this->title;
 
         <?= $form->field($model, 'message')->textarea(['rows' => 6]) ?>
 
+        <?= $form->field($model, 'context')->hiddenInput()->label(false); ?>
+
         <div class="form-group">
             <?= Html::submitButton(Yii::t('message', 'Send'), ['class' => 'btn btn-success']) ?>
         </div>

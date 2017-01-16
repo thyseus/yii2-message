@@ -12,6 +12,7 @@ return [
     'send' => 'Senden',
     'unread' => 'Ungelesen',
     'read' => 'Gelesen',
+    'context' => 'Kontext',
     'answered' => 'Beantwortet',
     'Answer' => 'Antwort',
     'Delete' => 'Löschen',

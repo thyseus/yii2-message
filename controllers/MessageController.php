@@ -180,18 +180,20 @@ class MessageController extends Controller
      * Compose a new Message.
      * When it is an answers to a message ($answers is set) it will set the status of the original message to
      * 'Answered'.
+     * You can set an 'context' to link this message on to an entity inside your application. This should be an
+     * id or slug or other identifier.
      * If creation is successful, the browser will be redirected to the 'inbox' page.
      * @return mixed
      */
-    public function actionCompose($to = null, $answers = null)
+    public function actionCompose($to = null, $answers = null, $context = null)
     {
         $model = new Message();
         $possible_recipients = Message::getPossibleRecipients(Yii::$app->user->id);
 
-        if(!Yii::$app->user->returnUrl)
+        if (!Yii::$app->user->returnUrl)
             Yii::$app->user->setReturnUrl(Yii::$app->request->referrer);
         
-        if($answers) {
+        if ($answers) {
             $origin = Message::find()->where(['hash' => $answers])->one();
 
             if(!$origin)
@@ -207,6 +209,7 @@ class MessageController extends Controller
                 $model->load(Yii::$app->request->post());
                 $model->to = $recipient_id;
                 $model->save();
+
                 if ($answers) {
                     if ($origin && $origin->to == Yii::$app->user->id && $origin->status == Message::STATUS_READ)
                         $origin->updateAttributes(['status' => Message::STATUS_ANSWERED]);
@@ -216,6 +219,9 @@ class MessageController extends Controller
         } else {
             if ($to)
                 $model->to = [$to];
+
+            if($context)
+                $model->context = $context;
 
             if ($answers) {
                 $prefix = Yii::$app->getModule('message')->answerPrefix;
@@ -230,6 +236,7 @@ class MessageController extends Controller
             return $this->render('compose', [
                 'model' => $model,
                 'answers' => $answers,
+                'context' => $context,
                 'possible_recipients' => ArrayHelper::map($possible_recipients, 'id', 'username'),
             ]);
         }
