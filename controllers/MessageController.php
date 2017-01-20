@@ -29,7 +29,7 @@ class MessageController extends Controller
                 'rules' => [
                     [
                         'allow' => true,
-                        'actions' => ['inbox', 'ignorelist', 'sent', 'compose', 'view', 'delete', 'mark-all-as-read'],
+                        'actions' => ['inbox', 'ignorelist', 'sent', 'compose', 'view', 'delete', 'mark-all-as-read', 'check-for-new-messages'],
                         'roles' => ['@'],
                     ],
                 ],
@@ -41,6 +41,17 @@ class MessageController extends Controller
                 ],
             ],
         ];
+    }
+
+    /** Simply print the count of unread messages for the currently logged in user.
+     * Useful if you want to implement a automatic notification for new users using
+     * the longpoll method (e.g. query every 10 seconds) */
+    public function actionCheckForNewMessages()
+    {
+        echo Message::find()->where([
+            'to' => Yii::$app->user->id,
+            'status' => 0,])
+            ->count();
     }
 
     /**
@@ -74,7 +85,7 @@ class MessageController extends Controller
     public function actionIgnorelist()
     {
         Yii::$app->user->setReturnUrl(['//message/message/ignorelist']);
-        
+
         if (Yii::$app->request->isPost) {
             IgnoreListEntry::deleteAll(['user_id' => Yii::$app->user->id]);
 
@@ -114,7 +125,7 @@ class MessageController extends Controller
         $searchModel = new MessageSearch();
         $searchModel->from = Yii::$app->user->id;
         $dataProvider = $searchModel->search(Yii::$app->request->queryParams);
-        
+
         Yii::$app->user->setReturnUrl(['//message/message/sent']);
 
         return $this->render('sent', [
@@ -192,14 +203,14 @@ class MessageController extends Controller
 
         if (!Yii::$app->user->returnUrl)
             Yii::$app->user->setReturnUrl(Yii::$app->request->referrer);
-        
+
         if ($answers) {
             $origin = Message::find()->where(['hash' => $answers])->one();
 
-            if(!$origin)
+            if (!$origin)
                 throw new NotFoundHttpException(Yii::t('message', 'Message to be answered can not be found'));
 
-            if(Message::isUserIgnoredBy($to, Yii::$app->user->id))
+            if (Message::isUserIgnoredBy($to, Yii::$app->user->id))
                 throw new ForbiddenHttpException(Yii::t('message', 'The recipient has added you to the ignore list. You can not send any messages to this person.'));
         }
 
@@ -220,14 +231,14 @@ class MessageController extends Controller
             if ($to)
                 $model->to = [$to];
 
-            if($context)
+            if ($context)
                 $model->context = $context;
 
             if ($answers) {
                 $prefix = Yii::$app->getModule('message')->answerPrefix;
 
-                 // avoid stacking of prefixes (Re: Re: Re:)
-                if(substr($origin->title, 0, strlen($prefix)) !== $prefix)
+                // avoid stacking of prefixes (Re: Re: Re:)
+                if (substr($origin->title, 0, strlen($prefix)) !== $prefix)
                     $model->title = $prefix . $origin->title;
                 else
                     $model->title = $origin->title;
