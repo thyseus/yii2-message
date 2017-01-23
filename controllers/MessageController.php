@@ -9,6 +9,7 @@ use Yii;
 use yii\filters\AccessControl;
 use yii\filters\VerbFilter;
 use yii\helpers\ArrayHelper;
+use yii\helpers\Html;
 use yii\web\Controller;
 use yii\web\ForbiddenHttpException;
 use yii\web\NotFoundHttpException;
@@ -44,14 +45,23 @@ class MessageController extends Controller
     }
 
     /** Simply print the count of unread messages for the currently logged in user.
+     * If it is only one unread message, display an link to it.
      * Useful if you want to implement a automatic notification for new users using
      * the longpoll method (e.g. query every 10 seconds) */
     public function actionCheckForNewMessages()
     {
-        echo Message::find()->where([
-            'to' => Yii::$app->user->id,
-            'status' => 0,])
-            ->count();
+        $conditions = ['to' => Yii::$app->user->id, 'status' => 0];
+
+        $count = Message::find()->where($conditions)->count();
+
+        if ($count == 1) {
+            $message = Message::find()->where($conditions)->one();
+
+            if($message)
+                echo Html::a($message->title, ['//message/message/view', 'hash' => $message->hash]);
+        }
+        else
+            echo $count;
     }
 
     /**
