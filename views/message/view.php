@@ -42,18 +42,37 @@ $this->params['breadcrumbs'][] = $this->title;
             ]) ?>
     </p>
 
-    <?= DetailView::widget([
+    <?php
+    if (isset(Yii::$app->getModule('message')->userProfileRoute))
+        $from = Html::a($message->sender->username, array_merge(Yii::$app->getModule('message')->userProfileRoute, ['id' => $message->from]));
+    else
+        $from = $message->sender->username;
+
+    if (isset(Yii::$app->getModule('message')->userProfileRoute))
+        $to = Html::a($message->recipient->username, array_merge(Yii::$app->getModule('message')->userProfileRoute, ['id' => $message->to]));
+    else
+        $to = $message->recipient->username;
+
+    echo DetailView::widget([
         'model' => $message,
         'attributes' => [
             'created_at',
-            ['label' => Yii::t('message', 'from'), 'value' => $message->sender->username],
-            ['label' => Yii::t('message', 'to'), 'value' => $message->recipient->username],
+            [
+                'label' => Yii::t('message', 'from'),
+                'format' => 'html',
+                'value' => $from,
+            ],
+            [
+                'label' => Yii::t('message', 'to'),
+                'format' => 'html',
+                'value' => $to,
+            ],
             'title',
             [
                 'attribute' => 'context',
-                'visible' => Yii::$app->getModule('message')->contextRoute && $message->context,
+                'visible' => $message->context,
                 'format' => 'html',
-                'value' => Html::a($message->context, $message->context),
+                'value' => $message->context,
             ],
             'message:html',
         ],

@@ -25,8 +25,12 @@ $this->params['breadcrumbs'][] = $this->title;
             [
                 'headerOptions' => ['style' => 'width: 200px;'],
                 'attribute' => 'to',
-                'value' => function ($data) {
-                    return $data->recipientLabel;
+                'format' => 'raw',
+                'value' => function ($message) {
+                    if (isset(Yii::$app->getModule('message')->userProfileRoute))
+                        return Html::a($message->recipient->username, array_merge(Yii::$app->getModule('message')->userProfileRoute, ['id' => $message->to]), ['data-pjax' => 0]);
+                    else
+                        return $message->recipient->username;
                 }
             ],
             [

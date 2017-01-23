@@ -1,7 +1,7 @@
 <?php
 use thyseus\message\models\Message;
-use yii\helpers\Html;
 use yii\grid\GridView;
+use yii\helpers\Html;
 use yii\widgets\Pjax;
 
 
@@ -27,8 +27,12 @@ $this->params['breadcrumbs'][] = $this->title;
             [
                 'headerOptions' => ['style' => 'width: 200px;'],
                 'attribute' => 'from',
-                'value' => function ($data) {
-                    return $data->sender->username;
+                'format' => 'raw',
+                'value' => function ($message) {
+                    if (isset(Yii::$app->getModule('message')->userProfileRoute))
+                        return Html::a($message->sender->username, array_merge(Yii::$app->getModule('message')->userProfileRoute, ['id' => $message->from]), ['data-pjax' => 0]);
+                    else
+                        return $message->sender->username;
                 },
                 'filter' => $users,
             ],
@@ -56,13 +60,13 @@ $this->params['breadcrumbs'][] = $this->title;
                 'value' => function ($data) {
                     switch ($data->status) {
                         case Message::STATUS_UNREAD:
-                            return '<span class="glyphicon glyphicon-envelope" title="'.Yii::t('message', 'unread').'">';
+                            return '<span class="glyphicon glyphicon-envelope" title="' . Yii::t('message', 'unread') . '">';
                             break;
                         case Message::STATUS_READ:
-                            return '<span class="glyphicon glyphicon-ok" title="'.Yii::t('message', 'read').'">';
+                            return '<span class="glyphicon glyphicon-ok" title="' . Yii::t('message', 'read') . '">';
                             break;
                         case Message::STATUS_ANSWERED:
-                            return '<span class="glyphicon glyphicon-repeat" title="'.Yii::t('message', 'answered').'">';
+                            return '<span class="glyphicon glyphicon-repeat" title="' . Yii::t('message', 'answered') . '">';
                             break;
                     }
                 },

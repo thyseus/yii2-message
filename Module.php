@@ -63,6 +63,12 @@ class Module extends BaseModule
      */
     public $userModelClass = 'app\models\User';
 
+    /**
+     * @var string The route that should be used to generate links towards an user.
+     * Could be ['//user/profile/view'] for example. The id gets appended automatically.
+     */
+    public $userProfileRoute = null;
+
     /** @var array The rules to be used in URL management. */
     public $urlRules = [
         'message/inbox' => 'message/message/inbox',
