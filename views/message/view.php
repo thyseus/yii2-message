@@ -53,11 +53,7 @@ $this->params['breadcrumbs'][] = $this->title;
                 'attribute' => 'context',
                 'visible' => Yii::$app->getModule('message')->contextRoute && $message->context,
                 'format' => 'html',
-                'value' => function ($data) {
-                    $url = Yii::$app->getModule('message')->contextRoute;
-                    $url['id'] = $data->context;
-                    return Html::a($data->context, $url);
-                },
+                'value' => Html::a($message->context, $message->context),
             ],
             'message:html',
         ],
