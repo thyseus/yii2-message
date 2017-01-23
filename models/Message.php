@@ -45,13 +45,14 @@ class Message extends ActiveRecord
         ];
     }
 
-    public static function compose($from, $to, $title, $message = '')
+    public static function compose($from, $to, $title, $message = '', $context = null)
     {
         $model = new Message;
         $model->from = $from;
         $model->to = $to;
         $model->title = $title;
         $model->message = $message;
+        $model->context = $context;
         return $model->save();
     }
 
