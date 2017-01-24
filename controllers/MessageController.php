@@ -252,6 +252,8 @@ class MessageController extends Controller
                     $model->title = $prefix . $origin->title;
                 else
                     $model->title = $origin->title;
+
+                $model->context = $origin->context;
             }
 
             return $this->render('compose', [
