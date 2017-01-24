@@ -169,7 +169,7 @@ class MessageController extends Controller
     {
         $message = $this->findModel($hash);
 
-        if ($message->status == Message::STATUS_UNREAD)
+        if ($message->status == Message::STATUS_UNREAD && $message->to == Yii::$app->user->id)
             $message->updateAttributes(['status' => Message::STATUS_READ]);
 
         return $this->render('view', [
