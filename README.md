@@ -1,11 +1,13 @@
 # Yii2-message
 
 System for users to send each other private messages.
+- An user configurable ignorelist and admin configurable whitelist (granulation which users are able to write to whom) is supported.
+- Encryption is not (yet?) supported.
 
 ## Prerequisites:
 
 You need an User Model that extends from ActiveRecord.
-It also should have the 'id' and 'username' attributes.
+It also must have the 'id' and 'username' attributes.
 
 I suggest to use https://github.com/dektrium/yii2-user which
 works wonderful with this module.
@@ -68,6 +70,10 @@ echo Nav::widget([
 
 For some url rules, you can copy Module::$urlRules into your 'rules' section of
 the URL Manager.
+
+### Server-configurable whitelist:
+
+
 
 ## Contributing to this project
 

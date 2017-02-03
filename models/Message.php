@@ -29,22 +29,6 @@ class Message extends ActiveRecord
         return '{{%message}}';
     }
 
-    public function rules()
-    {
-        return [
-            [['to', 'title'], 'required'],
-            [['to'], 'integer'],
-            [['title', 'message', 'context'], 'string'],
-            [['title'], 'string', 'max' => 255],
-            [['to'], IgnoreListValidator::className()],
-            [['to'], 'exist',
-                'targetClass' => Yii::$app->getModule('message')->userModelClass,
-                'targetAttribute' => 'id',
-                'message' => Yii::t('message', 'Recipient has not been found'),
-            ]
-        ];
-    }
-
     public static function compose($from, $to, $title, $message = '', $context = null)
     {
         $model = new Message;
@@ -58,8 +42,8 @@ class Message extends ActiveRecord
 
     public static function isUserIgnoredBy($victim, $offender)
     {
-        foreach(Message::getIgnoredUsers($victim) as $ignored_user)
-            if($offender == $ignored_user->blocks_user_id)
+        foreach (Message::getIgnoredUsers($victim) as $ignored_user)
+            if ($offender == $ignored_user->blocks_user_id)
                 return true;
 
         return false;
@@ -75,16 +59,40 @@ class Message extends ActiveRecord
         $user = new Yii::$app->controller->module->userModelClass;
 
         $ignored_users = [];
-
-        foreach(IgnoreListEntry::find()->select('user_id')->where(['blocks_user_id' => $for_user])->asArray()->all() as $ignore)
+        foreach (IgnoreListEntry::find()->select('user_id')->where(['blocks_user_id' => $for_user])->asArray()->all() as $ignore)
             $ignored_users[] = $ignore['user_id'];
 
-        $users = $user::find()->where(['!=', 'id', Yii::$app->user->id])->andWhere(['not in', 'id', $ignored_users])->all();
+        $allowed_contacts = [];
+        foreach (AllowedContacts::find()->select('is_allowed_to_write')->where(['user_id' => $for_user])->all() as $allowed_user)
+            $allowed_contacts[] = $allowed_user->is_allowed_to_write;
 
-        if(is_callable(Yii::$app->getModule('message')->recipientsFilterCallback))
+        $users = $user::find();
+        $users->where(['!=', 'id', Yii::$app->user->id]);
+        $users->andWhere(['not in', 'id', $ignored_users]);
+        if($allowed_contacts)
+            $users->andWhere(['id' => $allowed_contacts]);
+        $users = $users->all();
+
+        if (is_callable(Yii::$app->getModule('message')->recipientsFilterCallback))
             $users = call_user_func(Yii::$app->getModule('message')->recipientsFilterCallback, $users);
 
         return $users;
+    }
+
+    public function rules()
+    {
+        return [
+            [['to', 'title'], 'required'],
+            [['to'], 'integer'],
+            [['title', 'message', 'context'], 'string'],
+            [['title'], 'string', 'max' => 255],
+            [['to'], IgnoreListValidator::className()],
+            [['to'], 'exist',
+                'targetClass' => Yii::$app->getModule('message')->userModelClass,
+                'targetAttribute' => 'id',
+                'message' => Yii::t('message', 'Recipient has not been found'),
+            ]
+        ];
     }
 
     public function behaviors()
@@ -161,10 +169,16 @@ class Message extends ActiveRecord
 
     public function getRecipientLabel()
     {
-        if(!$this->recipient)
+        if (!$this->recipient)
             return Yii::t('message', 'Removed user');
         else
             return $this->recipient->username;
+    }
+
+
+    public function getAllowedContacts()
+    {
+        return $this->hasOne(AllowedContacts::className(), ['id' => 'user_id']);
     }
 
     public function getRecipient()
