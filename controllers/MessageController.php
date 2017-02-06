@@ -2,10 +2,13 @@
 
 namespace thyseus\message\controllers;
 
+use app\models\User;
+use thyseus\message\models\AllowedContacts;
 use thyseus\message\models\IgnoreListEntry;
 use thyseus\message\models\Message;
 use thyseus\message\models\MessageSearch;
 use Yii;
+use yii\db\IntegrityException;
 use yii\filters\AccessControl;
 use yii\filters\VerbFilter;
 use yii\helpers\ArrayHelper;
@@ -197,17 +200,42 @@ class MessageController extends Controller
         return $message;
     }
 
+    public function add_to_recipient_list($to)
+    {
+        if($recipient = User::findOne($to)) {
+            try {
+                $ac = new AllowedContacts();
+                $ac->user_id = Yii::$app->user->id;
+                $ac->is_allowed_to_write = $to;
+                $ac->save();
+
+                $ac = new AllowedContacts();
+                $ac->user_id = $to;
+                $ac->is_allowed_to_write = Yii::$app->user->id;
+                $ac->save();
+            } catch (IntegrityException $e) {
+                // ignore integrity constraint violation in case users are already connected
+            }
+        } else throw new NotFoundHttpException();
+    }
+
     /**
      * Compose a new Message.
      * When it is an answers to a message ($answers is set) it will set the status of the original message to
      * 'Answered'.
      * You can set an 'context' to link this message on to an entity inside your application. This should be an
      * id or slug or other identifier.
-     * If creation is successful, the browser will be redirected to the 'inbox' page.
+     * If $to and $add_to_recipient_list is set, the recipient will be added to the allowed contacts list. The sender
+     * will also be included in the recipient´s allowed contact list. Use this to allow first contact between users
+     * in an application where contacts are limited.
+     * If creation is successful, the browser will be redirected to the referrer, or 'inbox' page if not set.
      * @return mixed
      */
-    public function actionCompose($to = null, $answers = null, $context = null)
+    public function actionCompose($to = null, $answers = null, $context = null, $add_to_recipient_list = false)
     {
+        if($add_to_recipient_list && $to)
+            $this->add_to_recipient_list($to);
+
         $model = new Message();
         $possible_recipients = Message::getPossibleRecipients(Yii::$app->user->id);
 

@@ -1,7 +1,8 @@
 # Yii2-message
 
 System for users to send each other private messages.
-- An user configurable ignorelist and admin configurable whitelist (granulation which users are able to write to whom) is supported.
+- A user configurable ignorelist and admin configurable whitelist (administrators are able to fine-tune 
+the definition of which users are able to write to whom) is supported.
 - Encryption is not (yet?) supported.
 
 ## Prerequisites:
