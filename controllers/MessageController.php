@@ -15,6 +15,7 @@ use yii\helpers\ArrayHelper;
 use yii\helpers\Html;
 use yii\web\Controller;
 use yii\web\ForbiddenHttpException;
+use yii\web\Response;
 use yii\web\NotFoundHttpException;
 
 /**
@@ -53,6 +54,8 @@ class MessageController extends Controller
      * the longpoll method (e.g. query every 10 seconds) */
     public function actionCheckForNewMessages()
     {
+        Yii::$app->response->format = Response::FORMAT_RAW;
+
         $conditions = ['to' => Yii::$app->user->id, 'status' => 0];
 
         $count = Message::find()->where($conditions)->count();
@@ -118,8 +121,7 @@ class MessageController extends Controller
                 }
         }
 
-        $user = new Yii::$app->controller->module->userModelClass;
-        $users = $user::find()->where(['!=', 'id', Yii::$app->user->id])->all();
+        $users = Message::getPossibleRecipients(Yii::$app->user->id);
 
         $ignored_users = [];
 
