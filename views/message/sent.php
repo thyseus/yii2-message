@@ -27,10 +27,12 @@ $this->params['breadcrumbs'][] = $this->title;
                 'attribute' => 'to',
                 'format' => 'raw',
                 'value' => function ($message) {
-                    if (isset(Yii::$app->getModule('message')->userProfileRoute))
-                        return Html::a($message->recipient->username, array_merge(Yii::$app->getModule('message')->userProfileRoute, ['id' => $message->to]), ['data-pjax' => 0]);
-                    else
-                        return $message->recipient->username;
+                    if ($message->recipient) {
+                        if (isset(Yii::$app->getModule('message')->userProfileRoute))
+                            return Html::a($message->recipient->username, array_merge(Yii::$app->getModule('message')->userProfileRoute, ['id' => $message->to]), ['data-pjax' => 0]);
+                        else
+                            return $message->recipient->username;
+                    }
                 }
             ],
             [
