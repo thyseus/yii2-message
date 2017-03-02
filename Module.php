@@ -64,6 +64,12 @@ class Module extends BaseModule
     public $userModelClass = 'app\models\User';
 
     /**
+     * @var int The number of seconds that needs to pass until the user gets a reminder that he has
+     * new messages.
+     */
+    public $newMessagesEverySeconds = 3600;
+
+    /**
      * @var string The route that should be used to generate links towards an user.
      * Could be ['//user/profile/view'] for example. The id gets appended automatically.
      */

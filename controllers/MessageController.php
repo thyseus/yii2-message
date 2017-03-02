@@ -15,8 +15,8 @@ use yii\helpers\ArrayHelper;
 use yii\helpers\Html;
 use yii\web\Controller;
 use yii\web\ForbiddenHttpException;
-use yii\web\Response;
 use yii\web\NotFoundHttpException;
+use yii\web\Response;
 
 /**
  * MessageController implements the CRUD actions for Message model.
@@ -51,23 +51,50 @@ class MessageController extends Controller
     /** Simply print the count of unread messages for the currently logged in user.
      * If it is only one unread message, display an link to it.
      * Useful if you want to implement a automatic notification for new users using
-     * the longpoll method (e.g. query every 10 seconds) */
+     * the longpoll method (e.g. query every 10 seconds).
+     * To ensure the user is not being bugged too often, we only display the
+     * "new messages" message once every <newMessagesEverySeconds> per session.
+     * This defaults to 3600 (once every hour). */
     public function actionCheckForNewMessages()
     {
         Yii::$app->response->format = Response::FORMAT_RAW;
+
+        $session = Yii::$app->session;
+
+        $key = 'last_check_for_new_messages';
+        $last = 'last_response_when_checking_for_new_messages';
+
+        if ($session->has($key))
+            $last_check = $session->get($key);
+        else
+            $last_check = time();
 
         $conditions = ['to' => Yii::$app->user->id, 'status' => 0];
 
         $count = Message::find()->where($conditions)->count();
 
+        $time_bygone = time() > $last_check + Yii::$app->getModule('message')->newMessagesEverySeconds;
+
         if ($count == 1) {
             $message = Message::find()->where($conditions)->one();
 
-            if($message)
-                echo Html::a($message->title, ['//message/message/view', 'hash' => $message->hash]);
+            if ($message) {
+                if ($message != $session->get($last) || $time_bygone) {
+                    echo Html::a($message->title, ['//message/message/view', 'hash' => $message->hash]);
+                    Yii::$app->session->set($last, $message);
+                } else
+                    echo 0;
+            }
+        } else {
+            if ($count != $session->get($last) || $time_bygone) {
+                echo $count;
+                Yii::$app->session->set($last, $count);
+
+            } else
+                echo 0;
         }
-        else
-            echo $count;
+
+        Yii::$app->session->set($key, time());
     }
 
     /**
@@ -202,25 +229,6 @@ class MessageController extends Controller
         return $message;
     }
 
-    public function add_to_recipient_list($to)
-    {
-        if($recipient = User::findOne($to)) {
-            try {
-                $ac = new AllowedContacts();
-                $ac->user_id = Yii::$app->user->id;
-                $ac->is_allowed_to_write = $to;
-                $ac->save();
-
-                $ac = new AllowedContacts();
-                $ac->user_id = $to;
-                $ac->is_allowed_to_write = Yii::$app->user->id;
-                $ac->save();
-            } catch (IntegrityException $e) {
-                // ignore integrity constraint violation in case users are already connected
-            }
-        } else throw new NotFoundHttpException();
-    }
-
     /**
      * Compose a new Message.
      * When it is an answers to a message ($answers is set) it will set the status of the original message to
@@ -235,7 +243,7 @@ class MessageController extends Controller
      */
     public function actionCompose($to = null, $answers = null, $context = null, $add_to_recipient_list = false)
     {
-        if($add_to_recipient_list && $to)
+        if ($add_to_recipient_list && $to)
             $this->add_to_recipient_list($to);
 
         $model = new Message();
@@ -293,6 +301,25 @@ class MessageController extends Controller
                 'possible_recipients' => ArrayHelper::map($possible_recipients, 'id', 'username'),
             ]);
         }
+    }
+
+    public function add_to_recipient_list($to)
+    {
+        if ($recipient = User::findOne($to)) {
+            try {
+                $ac = new AllowedContacts();
+                $ac->user_id = Yii::$app->user->id;
+                $ac->is_allowed_to_write = $to;
+                $ac->save();
+
+                $ac = new AllowedContacts();
+                $ac->user_id = $to;
+                $ac->is_allowed_to_write = Yii::$app->user->id;
+                $ac->save();
+            } catch (IntegrityException $e) {
+                // ignore integrity constraint violation in case users are already connected
+            }
+        } else throw new NotFoundHttpException();
     }
 
     /**
