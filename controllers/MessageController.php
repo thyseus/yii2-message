@@ -239,6 +239,10 @@ class MessageController extends Controller
      * will also be included in the recipient´s allowed contact list. Use this to allow first contact between users
      * in an application where contacts are limited.
      * If creation is successful, the browser will be redirected to the referrer, or 'inbox' page if not set.
+     * @var $to integer The 'recipient' attribute will be prefilled with the user of this is
+     * @var $answers string This message will be marked as an answer to the message of this hash
+     * @var $context string This message is related to an entity accessible through this url
+     * @var $add_to_recipient_list bool This users did not yet have contact, add both of them to their contact list
      * @return mixed
      */
     public function actionCompose($to = null, $answers = null, $context = null, $add_to_recipient_list = false)
@@ -263,7 +267,12 @@ class MessageController extends Controller
         }
 
         if (Yii::$app->request->isPost) {
-            foreach (Yii::$app->request->post()['Message']['to'] as $recipient_id) {
+            $recipients = Yii::$app->request->post()['Message']['to'];
+
+            if(is_numeric($recipients)) # Only one recipient given
+                $recipients = [$recipients];
+
+            foreach ($recipients as $recipient_id) {
                 $model = new Message();
                 $model->load(Yii::$app->request->post());
                 $model->to = $recipient_id;
@@ -274,7 +283,7 @@ class MessageController extends Controller
                         $origin->updateAttributes(['status' => Message::STATUS_ANSWERED]);
                 }
             }
-            return $this->goBack();
+            return Yii::$app->request->isAjax ? true : $this->goBack();
         } else {
             if ($to)
                 $model->to = [$to];
@@ -294,10 +303,15 @@ class MessageController extends Controller
                 $model->context = $origin->context;
             }
 
+            if (Yii::$app->request->isAjax)
+                $this->layout = false;
+
             return $this->render('compose', [
                 'model' => $model,
                 'answers' => $answers,
                 'context' => $context,
+                'dialog' => Yii::$app->request->isAjax,
+                'allow_multiple' => true,
                 'possible_recipients' => ArrayHelper::map($possible_recipients, 'id', 'username'),
             ]);
         }

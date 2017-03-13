@@ -56,25 +56,77 @@ echo Nav::widget([
     'items' => [
     // ...
     [
-    'label' => $messagelabel,
-    'url' => '',
-    'visible' => !Yii::$app->user->isGuest, 'items' => [
-      ['label' => 'Inbox', 'url' => ['/message/message/inbox']],
-      ['label' => 'Sent', 'url' => ['/message/message/sent']],
-      ['label' => 'Compose a Message', 'url' => ['/message/message/compose']],
-      ['label' => 'Manage your Ignorelist', 'url' => ['/message/message/ignorelist']],
+      'label' => $messagelabel,
+      'url' => '',
+      'visible' => !Yii::$app->user->isGuest, 'items' => [
+        ['label' => 'Inbox', 'url' => ['/message/message/inbox']],
+        ['label' => 'Sent', 'url' => ['/message/message/sent']],
+        ['label' => 'Compose a Message', 'url' => ['/message/message/compose']],
+        ['label' => 'Manage your Ignorelist', 'url' => ['/message/message/ignorelist']],
       ]
     ],
     // ...
   ]);
 ```
 
+Since 0.3.0 you can render the compose view inside an Modal Widget like this:
+
+```php
+use kartik\growl\GrowlAsset;
+use yii\bootstrap\Modal;
+use yii\helpers\Url;
+
+GrowlAsset::register($this);
+
+Modal::begin(['id' => 'compose-message', 'header' => '<h2>Compose new Message</h2>']);
+Modal::end();
+
+$recipient_id = 1337; # write an message to user with id 1337
+
+echo Html::a('<span class="glyphicon glyphicon-envelope"></span> Compose Message', '', [
+  'class' => 'btn btn-default btn-contact-user',
+  'data-recipient' => $recipient_id,
+  'data-pjax' => 0
+]);
+
+$message_url = Url::to(['//message/message/compose']);
+
+$this->registerJs("
+  $('.modal-body').on('click', '.btn-send-message', function(event) {
+       if ($('#message-title').val()) {
+           $.post('".$message_url."', $('#message-form').serializeArray(), function() {
+               $.notify({message: 'Message has been sent successfully.'}, {type: 'success'});
+               $('#compose-message').modal('hide');
+           });
+      } else {
+          $('.modal-body').prepend('<div class=\"alert alert-warning\">Please enter a title at least.</div>');
+      }
+
+     event.preventDefault();
+  });
+  
+  $('.modal-body').on('submit', '#message-form', function(event) {
+    $('.btn-send-message').click(); 
+    event.preventDefault();
+  });
+   
+
+  $('body').on('click', '.btn-contact-user', function(event) {
+    $('#compose-message').modal();
+    recipient = $(this).data('recipient');
+    $.ajax('".$message_url."?to='+recipient+'&add_to_recipient_list=1', {
+      'success': function(result) {
+           $('.modal-body').html(result);
+       }
+    });
+
+    event.preventDefault();
+    });
+");
+```
+
 For some url rules, you can copy Module::$urlRules into your 'rules' section of
 the URL Manager.
-
-### Server-configurable whitelist:
-
-
 
 ## Contributing to this project
 

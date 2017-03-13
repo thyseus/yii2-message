@@ -1,6 +1,7 @@
 0.3.0 - to be released
 ENH: add optional context feature to Messages
 ENH: add 'answerPrefix' defaults to 'Re: '
+ENH: allow to render the compose view into an dialog
 
 0.2.0, released on 2016-12-16
 ENH: allow multiple recipients for an message
