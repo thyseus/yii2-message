@@ -79,9 +79,9 @@ class MessageController extends Controller
             $message = Message::find()->where($conditions)->one();
 
             if ($message) {
-                if ($message != $session->get($last) || $time_bygone) {
+                if ($message->title != $session->get($last) || $time_bygone) {
                     echo Html::a($message->title, ['//message/message/view', 'hash' => $message->hash]);
-                    Yii::$app->session->set($last, $message);
+                    Yii::$app->session->set($last, $message->title);
                 } else
                     echo 0;
             }
