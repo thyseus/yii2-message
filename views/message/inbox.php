@@ -16,8 +16,8 @@ $this->params['breadcrumbs'][] = $this->title;
 
     <h1><?= Html::encode($this->title) ?></h1>
 
-    <p> <?= Html::a(Yii::t('message', 'Write a message'), ['compose'], ['class' => 'btn btn-success']) ?> </p>
-
+    <p> <?= Html::a(Yii::t('message', 'Write a message') . ' <i class="fa fa-plus"></i>', ['compose'], ['class' => 'btn btn-success']) ?> </p>
+    <hr>
     <?php Pjax::begin(); ?>
 
     <?= GridView::widget([
