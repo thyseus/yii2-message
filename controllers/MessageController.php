@@ -231,14 +231,22 @@ class MessageController extends Controller
 
     /**
      * Compose a new Message.
-     * When it is an answers to a message ($answers is set) it will set the status of the original message to
-     * 'Answered'.
+     * When it is an answers to a message ($answers is set) it will set the status of the original message to 'Answered'.
      * You can set an 'context' to link this message on to an entity inside your application. This should be an
      * id or slug or other identifier.
      * If $to and $add_to_recipient_list is set, the recipient will be added to the allowed contacts list. The sender
      * will also be included in the recipient´s allowed contact list. Use this to allow first contact between users
      * in an application where contacts are limited.
      * If creation is successful, the browser will be redirected to the referrer, or 'inbox' page if not set.
+     * When this action is called by an Ajax Request, the view is prepared to return a partial view.
+     * @see README.md
+     * @var $to integer|null The 'recipient' attribute will be prefilled with the user of this id
+     * @var $answers string|null This message will be marked as an answer to the message of this hash
+     * @var $context string|null This message is related to an entity accessible through this url
+     * @var $add_to_recipient_list bool This users did not yet have contact, add both of them to their contact list
+     * @since 0.3.0
+     * @throws NotFoundHttpException When the user is not found in the database anymore.
+     * @throws ForbiddenHttpException When the user is on the ignore list.
      * @return mixed
      */
     public function actionCompose($to = null, $answers = null, $context = null, $add_to_recipient_list = false)
@@ -263,7 +271,12 @@ class MessageController extends Controller
         }
 
         if (Yii::$app->request->isPost) {
-            foreach (Yii::$app->request->post()['Message']['to'] as $recipient_id) {
+            $recipients = Yii::$app->request->post()['Message']['to'];
+
+            if(is_numeric($recipients)) # Only one recipient given
+                $recipients = [$recipients];
+
+            foreach ($recipients as $recipient_id) {
                 $model = new Message();
                 $model->load(Yii::$app->request->post());
                 $model->to = $recipient_id;
@@ -274,7 +287,7 @@ class MessageController extends Controller
                         $origin->updateAttributes(['status' => Message::STATUS_ANSWERED]);
                 }
             }
-            return $this->goBack();
+            return Yii::$app->request->isAjax ? true : $this->goBack();
         } else {
             if ($to)
                 $model->to = [$to];
@@ -294,10 +307,15 @@ class MessageController extends Controller
                 $model->context = $origin->context;
             }
 
+            if (Yii::$app->request->isAjax)
+                $this->layout = false;
+
             return $this->render('compose', [
                 'model' => $model,
                 'answers' => $answers,
                 'context' => $context,
+                'dialog' => Yii::$app->request->isAjax,
+                'allow_multiple' => true,
                 'possible_recipients' => ArrayHelper::map($possible_recipients, 'id', 'username'),
             ]);
         }

@@ -1,5 +1,6 @@
 <?php
 return [
+    'Recipient' => 'Empfänger',
     'Write a message' => 'Neue Nachricht',
     'Inbox' => 'Posteingang',
     'Sent' => 'Postausgang',
