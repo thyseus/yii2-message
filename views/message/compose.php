@@ -39,7 +39,8 @@ $this->params['breadcrumbs'][] = $this->title;
         </div>
 
         <?php ActiveForm::end(); ?>
-
+        <hr>
+        <?=  Html::a('<i class="fa fa-arrow-left" aria-hidden="true"></i> zurück zum Posteingang', ['/message/message/inbox']) ?>
     </div>
 
 </div>
