@@ -35,8 +35,10 @@ $this->params['breadcrumbs'][] = $this->title;
         } else
             echo $form->field($model, 'to')->widget(Select2::className(), [
                 'data' => $possible_recipients,
+                'showToggleAll' => false, # avoid accidental or malicious spam
                 'options' => [
                     'multiple' => $allow_multiple,
+                    'placeholder' => Yii::t('message', $allow_multiple ? 'Choose one or more recipients' : 'Choose the recipient'),
                 ],
                 'language' => Yii::$app->language ? Yii::$app->language : null,
             ]); ?>

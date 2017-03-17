@@ -29,5 +29,7 @@ return [
     'Message to be answered can not be found' => 'Die Nachricht, auf die geantwortet werden soll, kann nicht gefunden werden',
     'Ignorelist' => 'Blockierte Kontakte',
     'The list of ignored users has been saved' => 'Die blockierten Kontakte wurden gespeichert.',
-    'The list of ignored users could not be saved' => 'Die blockierten Kontakte konnten nicht gespeichert werden.'
+    'The list of ignored users could not be saved' => 'Die blockierten Kontakte konnten nicht gespeichert werden.',
+    'Choose one or more recipients' => 'Wählen Sie einen oder mehrere Empfänger',
+    'Choose the recipient' => 'Wählen Sie den Empfänger',
 ];
