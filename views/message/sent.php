@@ -9,12 +9,15 @@ use yii\widgets\Pjax;
 
 $this->title = Yii::t('message', 'Sent');
 $this->params['breadcrumbs'][] = $this->title;
+
+rmrevin\yii\fontawesome\AssetBundle::register($this);
+
 ?>
 <div class="message-index">
 
     <h1><?= Html::encode($this->title) ?></h1>
 
-    <p> <?= Html::a(Yii::t('message', 'Write a message'), ['compose'], ['class' => 'btn btn-success']) ?> </p>
+    <p> <?= Html::a(Yii::t('message', 'Write a message') . ' <i class="fa fa-plus"></i>', ['compose'], ['class' => 'btn btn-success']) ?> </p>
 
     <?php Pjax::begin(); ?>
 
@@ -28,10 +31,12 @@ $this->params['breadcrumbs'][] = $this->title;
                 'format' => 'raw',
                 'value' => function ($message) {
                     if ($message->recipient) {
-                        if (isset(Yii::$app->getModule('message')->userProfileRoute))
-                            return Html::a($message->recipient->username, array_merge(Yii::$app->getModule('message')->userProfileRoute, ['id' => $message->to]), ['data-pjax' => 0]);
-                        else
+                        if (isset(Yii::$app->getModule('message')->userProfileRoute)) {
+                            return Html::a($message->recipient->username, array_merge(
+                                    Yii::$app->getModule('message')->userProfileRoute, ['id' => $message->to]), ['data-pjax' => 0]);
+                        } else {
                             return $message->recipient->username;
+                        }
                     }
                 }
             ],

@@ -5,6 +5,7 @@ return [
     'Inbox' => 'Posteingang',
     'Sent' => 'Postausgang',
     'id' => '#',
+    'at' => 'um',
     'from' => 'Von',
     'to' => 'An',
     'title' => 'Betreff',
@@ -20,6 +21,9 @@ return [
     'Send' => 'Senden',
     'Save' => 'Speichern',
     'Messages' => 'Nachrichten',
+    'Message from' => 'Nachricht von',
+    'Referring to' => 'Bezugnehmend auf',
+    'No message content given' => 'Diese Nachricht hat keinen Inhalt',
     'Removed user' => 'Gelöschter Nutzer',
     'Are you sure you want to delete this message?' => 'Sind Sie sicher, dass Sie diese Nachricht löschen wollen?',
     'The requested message does not exist.' => 'Die angeforderte Nachricht existiert nicht.',
@@ -32,4 +36,5 @@ return [
     'The list of ignored users could not be saved' => 'Die blockierten Kontakte konnten nicht gespeichert werden.',
     'Choose one or more recipients' => 'Wählen Sie einen oder mehrere Empfänger',
     'Choose the recipient' => 'Wählen Sie den Empfänger',
+    'Back to Inbox' => 'zurück zum Posteingang',
 ];

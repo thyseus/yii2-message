@@ -12,6 +12,8 @@ use yii\widgets\ActiveForm;
 $this->title = Yii::t('message', 'Ignorelist');
 $this->params['breadcrumbs'][] = ['label' => Yii::t('message', 'Messages'), 'url' => ['//message/message/inbox']];
 $this->params['breadcrumbs'][] = $this->title;
+
+rmrevin\yii\fontawesome\AssetBundle::register($this);
 ?>
 
 <div class="row">

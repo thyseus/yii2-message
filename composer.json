@@ -21,7 +21,8 @@
         "yiisoft/yii2": "^2.0.0",
         "yiisoft/yii2-swiftmailer": "^2.0.0",
         "yiisoft/yii2-bootstrap": "^2.0.0",
-        "kartik-v/yii2-widget-select2": "^2.0"
+        "kartik-v/yii2-widget-select2": "^2.0",
+        "rmrevin/yii2-fontawesome": "~2.17"
     },
     "require-dev": {
         "yiisoft/yii2-codeception": "^2.0.0",

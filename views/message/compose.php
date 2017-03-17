@@ -10,6 +10,8 @@ use yii\widgets\ActiveForm;
 $this->title = Yii::t('message', 'Write a message');
 $this->params['breadcrumbs'][] = ['label' => Yii::t('message', 'Inbox'), 'url' => ['inbox']];
 $this->params['breadcrumbs'][] = $this->title;
+
+rmrevin\yii\fontawesome\AssetBundle::register($this);
 ?>
 <div class="message-create">
 
@@ -59,7 +61,7 @@ $this->params['breadcrumbs'][] = $this->title;
 
         <?php ActiveForm::end(); ?>
         <hr>
-        <?=  Html::a('<i class="fa fa-arrow-left" aria-hidden="true"></i> zurück zum Posteingang', ['/message/message/inbox']) ?>
+        <?=  Html::a('<i class="fa fa-arrow-left" aria-hidden="true"></i> ' . Yii::t('message', 'Back to Inbox'), ['/message/message/inbox']) ?>
     </div>
 
 </div>

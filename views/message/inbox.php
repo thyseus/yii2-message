@@ -11,13 +11,18 @@ use yii\widgets\Pjax;
 
 $this->title = Yii::t('message', 'Inbox');
 $this->params['breadcrumbs'][] = $this->title;
+
+rmrevin\yii\fontawesome\AssetBundle::register($this);
+
 ?>
 <div class="message-index">
 
     <h1><?= Html::encode($this->title) ?></h1>
 
     <p> <?= Html::a(Yii::t('message', 'Write a message') . ' <i class="fa fa-plus"></i>', ['compose'], ['class' => 'btn btn-success']) ?> </p>
+
     <hr>
+
     <?php Pjax::begin(); ?>
 
     <?= GridView::widget([
@@ -29,10 +34,12 @@ $this->params['breadcrumbs'][] = $this->title;
                 'attribute' => 'from',
                 'format' => 'raw',
                 'value' => function ($message) {
-                    if (isset(Yii::$app->getModule('message')->userProfileRoute))
-                        return Html::a($message->sender->username, array_merge(Yii::$app->getModule('message')->userProfileRoute, ['id' => $message->from]), ['data-pjax' => 0]);
-                    else
+                    if (isset(Yii::$app->getModule('message')->userProfileRoute)) {
+                        return Html::a($message->sender->username, array_merge(
+                                Yii::$app->getModule('message')->userProfileRoute, ['id' => $message->from]), ['data-pjax' => 0]);
+                    } else {
                         return $message->sender->username;
+                    }
                 },
                 'filter' => $users,
             ],
