@@ -42,7 +42,8 @@ rmrevin\yii\fontawesome\AssetBundle::register($this);
             ],
             [
                 'headerOptions' => ['style' => 'width: 200px;'],
-                'attribute' => 'created_at'
+                'attribute' => 'created_at',
+                'format' => 'datetime',
             ],
             [
                 'attribute' => 'title',

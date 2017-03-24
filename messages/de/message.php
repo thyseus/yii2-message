@@ -17,6 +17,7 @@ return [
     'context' => 'Kontext',
     'answered' => 'Beantwortet',
     'Answer' => 'Antwort',
+    'Delete message' => 'Nachricht löschen',
     'Delete' => 'Löschen',
     'Send' => 'Senden',
     'Save' => 'Speichern',
