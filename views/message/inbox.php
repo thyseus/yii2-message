@@ -46,6 +46,7 @@ rmrevin\yii\fontawesome\AssetBundle::register($this);
             [
                 'headerOptions' => ['style' => 'width: 200px;'],
                 'attribute' => 'created_at',
+                'format' => 'datetime',
                 'filter' => false,
             ],
             [
@@ -77,6 +78,19 @@ rmrevin\yii\fontawesome\AssetBundle::register($this);
                             break;
                     }
                 },
+            ],
+            [
+                'headerOptions' => ['style' => 'width: 50px;'],
+                'filter' => false,
+                'format' => 'raw',
+                'value' => function($data) {
+                    return Html::a('<i class="glyphicon glyphicon-remove">', ['delete', 'hash' => $data->hash], [
+                        'data-pjax' => 0,
+                        'data-method' => 'POST',
+                        'data-confirm' => Yii::t('message', 'Are you sure you want to delete this message?'),
+                        'title' => Yii::t('message', 'Delete message'),
+                    ]);
+                }
             ],
         ],
     ]); ?>
