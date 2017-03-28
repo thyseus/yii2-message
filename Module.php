@@ -32,7 +32,7 @@ class Module extends BaseModule
     /**
      * @var string Should the message be sent to the recipient by email?
      * The user model should have an attribute 'email'. Can be a callback so the recipient can decide
-     * if he wants to receive messages e.g. 
+     * if he wants to receive messages e.g.
      * 'mailMessages' => function($recipient) { return $recipient->profile->i_want_to_receive_messages_by_email; }
      */
     public $mailMessages = true;

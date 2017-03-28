@@ -33,6 +33,12 @@ Add following lines to your main configuration file:
 ],
 ```
 
+## Sending E-Mails
+
+You can overwrite the default e-mail views and layout by providing an @app/mail/ directory inside your Application.
+
+## Actions
+
 The following Actions are possible:
 
 * inbox: https://your-domain/message/message/inbox
