@@ -139,11 +139,14 @@ class Message extends ActiveRecord
     {
         $this->trigger(Message::EVENT_BEFORE_MAIL);
 
-        Yii::$app->mailer->compose()
+        if(!file_exists(Yii::$app->mailer->viewPath)) {
+            Yii::$app->mailer->viewPath = '@vendor/thyseus/yii2-message/mail/';
+        }
+
+        Yii::$app->mailer->compose(['html' => 'message', 'text' => 'text/message'], ['content' => $this->message])
             ->setTo($this->recipient->email)
             ->setFrom(Yii::$app->params['adminEmail'])
             ->setSubject($this->title)
-            ->setHtmlBody($this->message)
             ->send();
 
         $this->trigger(Message::EVENT_AFTER_MAIL);
