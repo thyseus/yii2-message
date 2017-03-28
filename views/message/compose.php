@@ -60,8 +60,11 @@ rmrevin\yii\fontawesome\AssetBundle::register($this);
         </div>
 
         <?php ActiveForm::end(); ?>
-        <hr>
-        <?=  Html::a('<i class="fa fa-arrow-left" aria-hidden="true"></i> ' . Yii::t('message', 'Back to Inbox'), ['/message/message/inbox']) ?>
+
+        <?php if (!Yii::$app->request->isAjax): ?>
+            <hr>
+            <?php echo Html::a('<i class="fa fa-arrow-left" aria-hidden="true"></i> ' . Yii::t('message', 'Back to Inbox'), ['/message/message/inbox']) ?>
+        <?php endif ?>
     </div>
 
 </div>
