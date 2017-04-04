@@ -38,4 +38,6 @@ return [
     'Choose one or more recipients' => 'Wählen Sie einen oder mehrere Empfänger',
     'Choose the recipient' => 'Wählen Sie den Empfänger',
     'Back to Inbox' => 'zurück zum Posteingang',
+    'No message content has been given' => 'Es wurde kein Nachrichteninhalt angegeben',
+    'Use this link to get to your inbox' => 'Nutzen Sie diesen Link, um zu ihrem Posteingang zu gelangen',
 ];
