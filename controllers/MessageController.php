@@ -259,8 +259,13 @@ class MessageController extends Controller
      */
     public function actionCompose($to = null, $answers = null, $context = null, $add_to_recipient_list = false)
     {
-        if ($add_to_recipient_list && $to)
+        if (Message::isUserIgnoredBy($to, Yii::$app->user->id)) {
+            throw new ForbiddenHttpException(Yii::t('message', 'The recipient has added you to the ignore list. You can not send any messages to this person.'));
+        }
+
+        if ($add_to_recipient_list && $to) {
             $this->add_to_recipient_list($to);
+        }
 
         $model = new Message();
         $possible_recipients = Message::getPossibleRecipients(Yii::$app->user->id);
@@ -272,11 +277,9 @@ class MessageController extends Controller
         if ($answers) {
             $origin = Message::find()->where(['hash' => $answers])->one();
 
-            if (!$origin)
+            if (!$origin) {
                 throw new NotFoundHttpException(Yii::t('message', 'Message to be answered can not be found'));
-
-            if (Message::isUserIgnoredBy($to, Yii::$app->user->id))
-                throw new ForbiddenHttpException(Yii::t('message', 'The recipient has added you to the ignore list. You can not send any messages to this person.'));
+            }
         }
 
         if (Yii::$app->request->isPost) {
@@ -292,32 +295,37 @@ class MessageController extends Controller
                 $model->save();
 
                 if ($answers) {
-                    if ($origin && $origin->to == Yii::$app->user->id && $origin->status == Message::STATUS_READ)
+                    if ($origin && $origin->to == Yii::$app->user->id && $origin->status == Message::STATUS_READ) {
                         $origin->updateAttributes(['status' => Message::STATUS_ANSWERED]);
+                    }
                 }
             }
             return Yii::$app->request->isAjax ? true : $this->goBack();
         } else {
-            if ($to)
+            if ($to) {
                 $model->to = [$to];
+            }
 
-            if ($context)
+            if ($context) {
                 $model->context = $context;
+            }
 
             if ($answers) {
                 $prefix = Yii::$app->getModule('message')->answerPrefix;
 
                 // avoid stacking of prefixes (Re: Re: Re:)
-                if (substr($origin->title, 0, strlen($prefix)) !== $prefix)
+                if (substr($origin->title, 0, strlen($prefix)) !== $prefix) {
                     $model->title = $prefix . $origin->title;
-                else
+                } else {
                     $model->title = $origin->title;
+                }
 
                 $model->context = $origin->context;
             }
 
-            if (Yii::$app->request->isAjax)
+            if (Yii::$app->request->isAjax) {
                 $this->layout = false;
+            }
 
             return $this->render('compose', [
                 'model' => $model,
