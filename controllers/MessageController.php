@@ -64,10 +64,11 @@ class MessageController extends Controller
         $key = 'last_check_for_new_messages';
         $last = 'last_response_when_checking_for_new_messages';
 
-        if ($session->has($key))
+        if ($session->has($key)) {
             $last_check = $session->get($key);
-        else
+        } else {
             $last_check = time();
+        }
 
         $conditions = ['to' => Yii::$app->user->id, 'status' => 0];
 
@@ -90,8 +91,9 @@ class MessageController extends Controller
                 echo $count;
                 Yii::$app->session->set($last, $count);
 
-            } else
+            } else {
                 echo 0;
+            }
         }
 
         Yii::$app->session->set($key, time());
@@ -132,7 +134,7 @@ class MessageController extends Controller
         if (Yii::$app->request->isPost) {
             IgnoreListEntry::deleteAll(['user_id' => Yii::$app->user->id]);
 
-            if (isset(Yii::$app->request->post()['ignored_users']))
+            if (isset(Yii::$app->request->post()['ignored_users'])) {
                 foreach (Yii::$app->request->post()['ignored_users'] as $ignored_user) {
                     $model = Yii::createObject([
                         'class' => IgnoreListEntry::className(),
@@ -141,19 +143,25 @@ class MessageController extends Controller
                         'created_at' => date('Y-m-d G:i:s'),
                     ]);
 
-                    if ($model->save())
+                    if ($model->save()) {
                         Yii::$app->session->setFlash('success', Yii::t('message', 'The list of ignored users has been saved'));
-                    else
+                    } else {
                         Yii::$app->session->setFlash('error', Yii::t('message', 'The list of ignored users could not be saved'));
+                    }
                 }
+            }
         }
 
         $users = Message::getPossibleRecipients(Yii::$app->user->id);
 
         $ignored_users = [];
 
-        foreach (IgnoreListEntry::find()->select('blocks_user_id')->where(['user_id' => Yii::$app->user->id])->asArray()->all() as $ignore)
+        foreach (IgnoreListEntry::find()
+                     ->select('blocks_user_id')
+                     ->where(['user_id' => Yii::$app->user->id])
+                     ->asArray()->all() as $ignore) {
             $ignored_users[] = $ignore['blocks_user_id'];
+        }
 
         return $this->render('ignorelist', ['users' => $users, 'ignored_users' => $ignored_users]);
     }
@@ -257,8 +265,9 @@ class MessageController extends Controller
         $model = new Message();
         $possible_recipients = Message::getPossibleRecipients(Yii::$app->user->id);
 
-        if (!Yii::$app->user->returnUrl)
+        if (!Yii::$app->user->returnUrl) {
             Yii::$app->user->setReturnUrl(Yii::$app->request->referrer);
+        }
 
         if ($answers) {
             $origin = Message::find()->where(['hash' => $answers])->one();
@@ -273,7 +282,7 @@ class MessageController extends Controller
         if (Yii::$app->request->isPost) {
             $recipients = Yii::$app->request->post()['Message']['to'];
 
-            if(is_numeric($recipients)) # Only one recipient given
+            if (is_numeric($recipients)) # Only one recipient given
                 $recipients = [$recipients];
 
             foreach ($recipients as $recipient_id) {
