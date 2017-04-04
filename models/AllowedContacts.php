@@ -30,6 +30,7 @@ class AllowedContacts extends \yii\db\ActiveRecord
     {
         return [
             [['user_id'], 'required'],
+            [['user_id', 'is_allowed_to_write'], 'unique'],
             [['user_id', 'is_allowed_to_write'], 'integer'],
         ];
     }
