@@ -259,8 +259,13 @@ class MessageController extends Controller
      */
     public function actionCompose($to = null, $answers = null, $context = null, $add_to_recipient_list = false)
     {
+
+        if (Yii::$app->request->isAjax) {
+            $this->layout = false;
+        }
+
         if (Message::isUserIgnoredBy($to, Yii::$app->user->id)) {
-            throw new ForbiddenHttpException(Yii::t('message', 'The recipient has added you to the ignore list. You can not send any messages to this person.'));
+            return $this->render('you_are_ignored');
         }
 
         if ($add_to_recipient_list && $to) {
@@ -321,10 +326,6 @@ class MessageController extends Controller
                 }
 
                 $model->context = $origin->context;
-            }
-
-            if (Yii::$app->request->isAjax) {
-                $this->layout = false;
             }
 
             return $this->render('compose', [
