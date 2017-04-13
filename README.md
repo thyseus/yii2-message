@@ -7,11 +7,9 @@ the definition of which users are able to write to whom) is supported.
 
 ## Prerequisites:
 
-You need an User Model that extends from ActiveRecord.
-It also must have the 'id' and 'username' attributes.
+You need a Model with the 'id' and 'username' attributes. This needs to be an ActiveRecord or Model instance.
 
-I suggest to use https://github.com/dektrium/yii2-user which
-works wonderful with this module.
+I suggest to use https://github.com/dektrium/yii2-user which works wonderful with this module.
 
 ## Installation
 
@@ -28,7 +26,7 @@ Add following lines to your main configuration file:
 'modules' => [
     'message' => [
         'class' => 'thyseus\message\Module',
-        'modelClass' => '\app\models\User', // optional. your User model. Needs to be ActiveRecord.
+        'userModelClass' => '\app\models\User', // your User model. Needs to be ActiveRecord.
     ],
 ],
 ```
