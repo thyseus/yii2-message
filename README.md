@@ -4,6 +4,8 @@ System for users to send each other private messages.
 - A user configurable ignorelist and admin configurable whitelist (administrators are able to fine-tune 
 the definition of which users are able to write to whom) is supported.
 - Encryption is not (yet?) supported.
+- Uses Font Awesome (http://fontawesome.io/) for some icons
+- Every message sent inside the messaging system can be forwarded to the recipient be e-mail automatically.
 
 ## Prerequisites:
 
@@ -33,7 +35,34 @@ Add following lines to your main configuration file:
 
 ## Sending E-Mails
 
+If you want the system to automatically send E-Mails via Yii::$app->mailer you only need to provide an
+'email' column in your ActiveRecord Model.
+
+Use the $mailMessages module option to define which users are getting E-Mails. For Example:
+
+```php
+        'mailMessages' => function ($user) {
+            return $user->profile->receive_emails === true;
+        },
+```
+
 You can overwrite the default e-mail views and layout by providing an @app/mail/ directory inside your Application.
+
+## Ignore List and Recipients Filter
+
+The user can manage his own ignore list using the message/message/ignorelist route. You can place a callback that
+defines which users should be able to be messaged. For example, if you do not want your users to be able to write
+to admin users, do this:
+
+```php
+        'recipientsFilterCallback' => function ($users) {
+            return array_filter($users, function ($user) {
+                return !$user->isAdmin;
+            });
+        },
+```
+
+The recipients filter is applied after the ignore list.
 
 ## Actions
 
@@ -129,8 +158,7 @@ $this->registerJs("
 ");
 ```
 
-For some url rules, you can copy Module::$urlRules into your 'rules' section of
-the URL Manager.
+For some common url rules, you can copy Module::$urlRules into your 'rules' section of the URL Manager.
 
 ## Contributing to this project
 

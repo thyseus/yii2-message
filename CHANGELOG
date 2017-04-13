@@ -1,4 +1,4 @@
-0.3.0 - to be released
+0.3.0 - released on 2017-04-13
 ENH: style improved using font awesome icons
 ENH: add optional context feature to Messages
 ENH: add 'answerPrefix' defaults to 'Re: '
