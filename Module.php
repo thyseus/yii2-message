@@ -75,6 +75,13 @@ class Module extends BaseModule
      */
     public $userProfileRoute = null;
 
+    /**
+     * @var string mailer component as given in Yii::$app->{mailer}. Defaults to 'mailer'. Can e.g. be set to
+     * 'mailqueue' if you decide to send E-Mails via an mail queue instead of directly.
+     * Tested with https://github.com/nterms/yii2-mailqueue
+     */
+    public $mailer = 'mailer';
+
     /** @var array The rules to be used in URL management. */
     public $urlRules = [
         'message/inbox' => 'message/message/inbox',

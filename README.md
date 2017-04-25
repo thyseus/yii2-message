@@ -48,6 +48,11 @@ Use the $mailMessages module option to define which users are getting E-Mails. F
 
 You can overwrite the default e-mail views and layout by providing an @app/mail/ directory inside your Application.
 
+## Mailqueue
+
+If you want to use an mailqueue like https://github.com/nterms/yii2-mailqueue you can override the 'mailer' 
+configuration option in the module configuration.
+
 ## Ignore List and Recipients Filter
 
 The user can manage his own ignore list using the message/message/ignorelist route. You can place a callback that

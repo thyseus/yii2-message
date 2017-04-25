@@ -54,6 +54,12 @@ class Message extends ActiveRecord
         return IgnoreListEntry::find()->where(['user_id' => $for_user])->all();
     }
 
+    /**
+     * returns an array of possible recipients for the given user. Applies the ignorelist and applies possible custom
+     * logic.
+     * @param $for_user
+     * @return mixed
+     */
     public static function getPossibleRecipients($for_user)
     {
         $user = new Yii::$app->controller->module->userModelClass;
@@ -69,7 +75,7 @@ class Message extends ActiveRecord
         $users = $user::find();
         $users->where(['!=', 'id', Yii::$app->user->id]);
         $users->andWhere(['not in', 'id', $ignored_users]);
-        if($allowed_contacts)
+        if ($allowed_contacts)
             $users->andWhere(['id' => $allowed_contacts]);
         $users = $users->all();
 
@@ -133,24 +139,30 @@ class Message extends ActiveRecord
         return parent::afterSave($insert, $changedAttributes);
     }
 
-    // returns an array of possible recipients for the given user. Applies the ignorelist and applies possible custom
-    // logic.
-
     public function sendEmailToRecipient()
     {
-        $this->trigger(Message::EVENT_BEFORE_MAIL);
+        if (isset(Yii::$app->{Yii::$app->getModule('message')->mailer})) {
+            $mailer = Yii::$app->{Yii::$app->getModule('message')->mailer};
 
-        if(!file_exists(Yii::$app->mailer->viewPath)) {
-            Yii::$app->mailer->viewPath = '@vendor/thyseus/yii2-message/mail/';
+            $this->trigger(Message::EVENT_BEFORE_MAIL);
+
+            if (!file_exists($mailer->viewPath)) {
+                $mailer->viewPath = '@vendor/thyseus/yii2-message/mail/';
+            }
+
+            $mailing = $mailer->compose(['html' => 'message', 'text' => 'text/message'], ['content' => $this->message])
+                ->setTo($this->recipient->email)
+                ->setFrom(Yii::$app->params['adminEmail'])
+                ->setSubject($this->title);
+
+            if (is_a($mailer,'nterms\mailqueue\MailQueue')) {
+                $mailing->queue();
+            } else {
+                $mailing->send();
+            }
+
+            $this->trigger(Message::EVENT_AFTER_MAIL);
         }
-
-        Yii::$app->mailer->compose(['html' => 'message', 'text' => 'text/message'], ['content' => $this->message])
-            ->setTo($this->recipient->email)
-            ->setFrom(Yii::$app->params['adminEmail'])
-            ->setSubject($this->title)
-            ->send();
-
-        $this->trigger(Message::EVENT_AFTER_MAIL);
     }
 
     public function attributeLabels()
