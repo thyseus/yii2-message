@@ -82,6 +82,12 @@ class Module extends BaseModule
      */
     public $mailer = 'mailer';
 
+    /**
+     * @var string Caption that should be shown when an Message has no sender. This usually are Messages coming
+     * from the System. Will not be i18ned automatically.
+     */
+    public $no_sender_caption = 'System';
+
     /** @var array The rules to be used in URL management. */
     public $urlRules = [
         'message/inbox' => 'message/message/inbox',
