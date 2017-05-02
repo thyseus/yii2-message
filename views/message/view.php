@@ -24,6 +24,10 @@ rmrevin\yii\fontawesome\AssetBundle::register($this);
                     'title' => $ignored ? Yii::t(
                         'message', 'The recipient has added you to the ignore list. You can not send any messages to this person.') : '',
                 ]);
+            } else if($message->from === null) {
+                echo '<span class="alert alert-info">';
+                echo Yii::t('message', 'This message has been sent from the System');
+                echo '</span>';
             } else {
                 echo Html::a('<i class="fa fa-reply" aria-hidden="true"></i> ' . Yii::t('message', 'Answer'), [
                     'compose', 'to' => $message->from, 'answers' => $message->hash]);
@@ -44,10 +48,14 @@ rmrevin\yii\fontawesome\AssetBundle::register($this);
         ?>
     </p>
     <?php
-    if (isset(Yii::$app->getModule('message')->userProfileRoute)) {
-        $from = Html::a($message->sender->username, array_merge(Yii::$app->getModule('message')->userProfileRoute, ['id' => $message->from]));
+    if($message->sender !== null) {
+        if (isset(Yii::$app->getModule('message')->userProfileRoute)) {
+            $from = Html::a($message->sender->username, array_merge(Yii::$app->getModule('message')->userProfileRoute, ['id' => $message->from]));
+        } else {
+            $from = $message->sender->username;
+        }
     } else {
-        $from = $message->sender->username;
+        $from = Yii::$app->getModule('message')->no_sender_caption;
     }
 
     if (isset(Yii::$app->getModule('message')->userProfileRoute)) {

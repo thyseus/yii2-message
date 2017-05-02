@@ -118,20 +118,12 @@ class Message extends ActiveRecord
         ];
     }
 
-    // BlameableBehavior can not be used because the ignoreListValidator needs to have 'from' filled at validation time.
-    public function beforeValidate()
-    {
-        if (!$this->from)
-            $this->from = Yii::$app->user->id;
-
-        return parent::beforeValidate();
-    }
-
     public function afterSave($insert, $changedAttributes)
     {
         if ($insert && isset($this->recipient->email)) {
             $mailMessages = Yii::$app->getModule('message')->mailMessages;
-            if ($mailMessages === true || (is_callable($mailMessages) && $mailMessages($this->recipient))) {
+
+            if ($mailMessages === true || (is_callable($mailMessages) && call_user_func($mailMessages, $this->recipient))) {
                 $this->sendEmailToRecipient();
             }
         }
@@ -150,12 +142,15 @@ class Message extends ActiveRecord
                 $mailer->viewPath = '@vendor/thyseus/yii2-message/mail/';
             }
 
-            $mailing = $mailer->compose(['html' => 'message', 'text' => 'text/message'], ['content' => $this->message])
+            $mailing = $mailer->compose(['html' => 'message', 'text' => 'text/message'], [
+                'model' => $this,
+                'content' => $this->message
+            ])
                 ->setTo($this->recipient->email)
                 ->setFrom(Yii::$app->params['adminEmail'])
                 ->setSubject($this->title);
 
-            if (is_a($mailer,'nterms\mailqueue\MailQueue')) {
+            if (is_a($mailer, 'nterms\mailqueue\MailQueue')) {
                 $mailing->queue();
             } else {
                 $mailing->send();

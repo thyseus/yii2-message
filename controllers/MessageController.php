@@ -259,7 +259,6 @@ class MessageController extends Controller
      */
     public function actionCompose($to = null, $answers = null, $context = null, $add_to_recipient_list = false)
     {
-
         if (Yii::$app->request->isAjax) {
             $this->layout = false;
         }
@@ -296,6 +295,7 @@ class MessageController extends Controller
             foreach ($recipients as $recipient_id) {
                 $model = new Message();
                 $model->load(Yii::$app->request->post());
+                $model->from = Yii::$app->user->id;
                 $model->to = $recipient_id;
                 $model->save();
 
