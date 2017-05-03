@@ -30,9 +30,17 @@ class AllowedContacts extends \yii\db\ActiveRecord
     {
         return [
             [['user_id'], 'required'],
-            [['user_id', 'is_allowed_to_write'], 'unique'],
             [['user_id', 'is_allowed_to_write'], 'integer'],
         ];
+    }
+
+    public function beforeValidate()
+    {
+        if (self::findOne(['user_id' => $this->user_id, 'is_allowed_to_write' => $this->is_allowed_to_write])) {
+            $this->addError('user_id', 'User ' . $this->user_id . ' is already allowed to write to user ' . $this->is_allowed_to_write);
+        }
+
+        return parent::beforeValidate();
     }
 
     /**
