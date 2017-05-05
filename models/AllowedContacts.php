@@ -20,7 +20,7 @@ class AllowedContacts extends \yii\db\ActiveRecord
      */
     public static function tableName()
     {
-        return 'message_allowed_contacts';
+        return '{{%message_allowed_contacts}}';
     }
 
     /**
