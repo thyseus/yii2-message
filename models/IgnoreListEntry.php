@@ -18,7 +18,7 @@ class IgnoreListEntry extends \yii\db\ActiveRecord
      */
     public static function tableName()
     {
-        return 'message_ignorelist';
+        return '{{%message_ignorelist}}';
     }
 
     /**
