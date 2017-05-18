@@ -38,7 +38,8 @@ rmrevin\yii\fontawesome\AssetBundle::register($this);
                             return $message->recipient->username;
                         }
                     }
-                }
+                },
+                'filter' => $users,
             ],
             [
                 'headerOptions' => ['style' => 'width: 200px;'],

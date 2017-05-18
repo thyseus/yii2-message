@@ -178,9 +178,13 @@ class MessageController extends Controller
 
         Yii::$app->user->setReturnUrl(['//message/message/sent']);
 
+        $users = ArrayHelper::map(
+            Message::find()->where(['from' => Yii::$app->user->id])->select('to')->groupBy('to')->all(), 'to', 'recipient.username');
+
         return $this->render('sent', [
             'searchModel' => $searchModel,
             'dataProvider' => $dataProvider,
+            'users' => $users,
         ]);
     }
 
