@@ -114,7 +114,7 @@ class MessageController extends Controller
         $dataProvider = $searchModel->search(Yii::$app->request->queryParams);
 
         $users = ArrayHelper::map(
-            Message::find()->where(['to' => Yii::$app->user->id])->groupBy('from')->all(), 'from', 'sender.username');
+            Message::find()->where(['to' => Yii::$app->user->id])->select('from')->groupBy('from')->all(), 'from', 'sender.username');
 
         return $this->render('inbox', [
             'searchModel' => $searchModel,
