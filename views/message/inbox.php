@@ -34,11 +34,16 @@ rmrevin\yii\fontawesome\AssetBundle::register($this);
                 'attribute' => 'from',
                 'format' => 'raw',
                 'value' => function ($message) {
-                    if (isset(Yii::$app->getModule('message')->userProfileRoute)) {
-                        return Html::a($message->sender->username, array_merge(
-                                Yii::$app->getModule('message')->userProfileRoute, ['id' => $message->from]), ['data-pjax' => 0]);
+                    $module = Yii::$app->getModule('message');
+                    if ($message->sender !== null) {
+                        if (isset($module->userProfileRoute)) {
+                            return Html::a($message->sender->username, array_merge(
+                                $module->userProfileRoute, ['id' => $message->from]), ['data-pjax' => 0]);
+                        } else {
+                            return $message->sender->username;
+                        }
                     } else {
-                        return $message->sender->username;
+                        return $module->no_sender_caption;
                     }
                 },
                 'filter' => $users,

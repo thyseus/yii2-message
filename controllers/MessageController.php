@@ -335,6 +335,7 @@ class MessageController extends Controller
             return $this->render('compose', [
                 'model' => $model,
                 'answers' => $answers,
+                'origin' => isset($origin) ? $origin : null,
                 'context' => $context,
                 'dialog' => Yii::$app->request->isAjax,
                 'allow_multiple' => true,

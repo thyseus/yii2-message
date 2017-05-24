@@ -7,7 +7,11 @@ use yii\widgets\ActiveForm;
 /* @var $this yii\web\View */
 /* @var $model app\models\Message */
 
-$this->title = Yii::t('message', 'Write a message');
+if ($answers) {
+    $this->title = Yii::t('message', 'Answer message');
+} else {
+    $this->title = Yii::t('message', 'Write a message');
+}
 $this->params['breadcrumbs'][] = ['label' => Yii::t('message', 'Inbox'), 'url' => ['inbox']];
 $this->params['breadcrumbs'][] = $this->title;
 
@@ -44,6 +48,16 @@ rmrevin\yii\fontawesome\AssetBundle::register($this);
                 ],
                 'language' => Yii::$app->language ? Yii::$app->language : null,
             ]); ?>
+
+        <?php if ($answers && $origin) { ?>
+
+            <p> <?= Yii::t('message', 'Original message'); ?> </p>
+
+            <?= $origin->message; ?>
+
+            <hr>
+
+        <?php } ?>
 
         <?= $form->field($model, 'title')->textInput(['maxlength' => true, 'required' => 'required']) ?>
 
