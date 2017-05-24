@@ -41,4 +41,6 @@ return [
     'No message content has been given' => 'Es wurde kein Nachrichteninhalt angegeben',
     'Use this link to get to your inbox' => 'Nutzen Sie diesen Link, um zu ihrem Posteingang zu gelangen',
     'This message has been sent from the System' => 'Diese Nachricht wurde vom System versandt',
+    'Answer message' => 'Nachricht beantworten',
+    'Original message' => 'Ursprüngliche Nachricht',
 ];
