@@ -37,7 +37,8 @@ class Message extends ActiveRecord
         $model->title = $title;
         $model->message = $message;
         $model->context = $context;
-        return $model->save();
+        $model->save();
+        return $model;
     }
 
     public static function isUserIgnoredBy($victim, $offender)
