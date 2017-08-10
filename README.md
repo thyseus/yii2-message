@@ -50,8 +50,18 @@ You can overwrite the default e-mail views and layout by providing an @app/mail/
 
 ## Mailqueue
 
+From version 0.4 and above you can use yii2-queue (https://github.com/yiisoft/yii2-queue) to send messages via a
+mail queue. Once you have yii2-queue configured in your application you can set
+
+```php
+        'useMailQueue' => true,
+```
+
+to let yii2-message push an EmailJob on to your queue instead of sending the E-Mail directly.
+
 If you want to use an mailqueue like https://github.com/nterms/yii2-mailqueue you can override the 'mailer' 
-configuration option in the module configuration.
+configuration option in the module configuration. Since yii2-queue is stable and an official extension i personally
+prefer to use yii2-queue instead of 3rd party extensions.
 
 ## Ignore List and Recipients Filter
 
