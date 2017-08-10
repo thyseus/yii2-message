@@ -7,6 +7,7 @@
 
 namespace thyseus\message\models;
 
+use thyseus\message\jobs\EmailJob;
 use thyseus\message\validators\IgnoreListValidator;
 use yii;
 use yii\behaviors\AttributeBehavior;
@@ -43,9 +44,11 @@ class Message extends ActiveRecord
 
     public static function isUserIgnoredBy($victim, $offender)
     {
-        foreach (Message::getIgnoredUsers($victim) as $ignored_user)
-            if ($offender == $ignored_user->blocks_user_id)
+        foreach (Message::getIgnoredUsers($victim) as $ignored_user) {
+            if ($offender == $ignored_user->blocks_user_id) {
                 return true;
+            }
+        }
 
         return false;
     }
@@ -76,8 +79,10 @@ class Message extends ActiveRecord
         $users = $user::find();
         $users->where(['!=', 'id', Yii::$app->user->id]);
         $users->andWhere(['not in', 'id', $ignored_users]);
+
         if ($allowed_contacts)
             $users->andWhere(['id' => $allowed_contacts]);
+
         $users = $users->all();
 
         if (is_callable(Yii::$app->getModule('message')->recipientsFilterCallback))
@@ -119,12 +124,19 @@ class Message extends ActiveRecord
         ];
     }
 
+    /**
+     * Send E-Mail to recipients if configured.
+     * @param $insert
+     * @param $changedAttributes
+     * @return mixed
+     */
     public function afterSave($insert, $changedAttributes)
     {
         if ($insert && isset($this->recipient->email)) {
             $mailMessages = Yii::$app->getModule('message')->mailMessages;
 
-            if ($mailMessages === true || (is_callable($mailMessages) && call_user_func($mailMessages, $this->recipient))) {
+            if ($mailMessages === true
+                || (is_callable($mailMessages) && call_user_func($mailMessages, $this->recipient))) {
                 $this->sendEmailToRecipient();
             }
         }
@@ -132,33 +144,46 @@ class Message extends ActiveRecord
         return parent::afterSave($insert, $changedAttributes);
     }
 
+    /**
+     * The new message should be send to the recipient via e-mail once.
+     * By default, Yii::$app->mailer is used to do so.
+     * If you want do enqueue the mail in an queue like yii2-queue or nterms/yii2-mailqueue you
+     * can configure this in the module configuration.
+     * You can configure your application specific mail views using themeMap.
+     *
+     * @see https://github.com/yiisoft/yii2-queue
+     * @see https://github.com/nterms/yii2-mailqueue
+     * @see http://www.yiiframework.com/doc-2.0/yii-base-theme.html
+     */
     public function sendEmailToRecipient()
     {
-        if (isset(Yii::$app->{Yii::$app->getModule('message')->mailer})) {
-            $mailer = Yii::$app->{Yii::$app->getModule('message')->mailer};
+        $mailer = Yii::$app->{Yii::$app->getModule('message')->mailer};
 
-            $this->trigger(Message::EVENT_BEFORE_MAIL);
+        $this->trigger(Message::EVENT_BEFORE_MAIL);
 
-            if (!file_exists($mailer->viewPath)) {
-                $mailer->viewPath = '@vendor/thyseus/yii2-message/mail/';
-            }
-
-            $mailing = $mailer->compose(['html' => 'message', 'text' => 'text/message'], [
-                'model' => $this,
-                'content' => $this->message
-            ])
-                ->setTo($this->recipient->email)
-                ->setFrom(Yii::$app->params['adminEmail'])
-                ->setSubject($this->title);
-
-            if (is_a($mailer, 'nterms\mailqueue\MailQueue')) {
-                $mailing->queue();
-            } else {
-                $mailing->send();
-            }
-
-            $this->trigger(Message::EVENT_AFTER_MAIL);
+        if (!file_exists($mailer->viewPath)) {
+            $mailer->viewPath = '@vendor/thyseus/yii2-message/mail/';
         }
+
+        $mailing = $mailer->compose(['html' => 'message', 'text' => 'text/message'], [
+            'model' => $this,
+            'content' => $this->message
+        ])
+            ->setTo($this->recipient->email)
+            ->setFrom(Yii::$app->params['adminEmail'])
+            ->setSubject($this->title);
+
+        if (is_a($mailer, 'nterms\mailqueue\MailQueue')) {
+            $mailing->queue();
+        } else if (Yii::$app->getModule('message')->useMailQueue) {
+            Yii::$app->queue->push(new EmailJob([
+                'mailing' => $mailing,
+            ]));
+        } else {
+            $mailing->send();
+        }
+
+        $this->trigger(Message::EVENT_AFTER_MAIL);
     }
 
     public function attributeLabels()

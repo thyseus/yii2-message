@@ -82,6 +82,12 @@ class Module extends BaseModule
      */
     public $mailer = 'mailer';
 
+
+    /**
+     * @var bool Set to true to use an mailqueue like yii2-queue: https://github.com/yiisoft/yii2-queue/
+     */
+    public $useMailQueue = false;
+
     /**
      * @var string Caption that should be shown when an Message has no sender. This usually are Messages coming
      * from the System. Will not be i18ned automatically.
