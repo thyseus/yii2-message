@@ -38,6 +38,7 @@ class Message extends ActiveRecord
         $model->title = $title;
         $model->message = $message;
         $model->context = $context;
+        $model->status = self::STATUS_UNREAD;
         $model->save();
         return $model;
     }
