@@ -301,6 +301,7 @@ class MessageController extends Controller
                 $model->load(Yii::$app->request->post());
                 $model->from = Yii::$app->user->id;
                 $model->to = $recipient_id;
+                $model->status = self::STATUS_UNREAD;
                 $model->save();
 
                 if ($answers) {
