@@ -17,7 +17,7 @@ rmrevin\yii\fontawesome\AssetBundle::register($this);
     <p>
         <?php
         $ignored = Message::isUserIgnoredBy($message->from, Yii::$app->user->id);
-        if ($message->from != Yii::$app->user->id) {
+        if ($message->from != Yii::$app->user->id && $message->from) {
             if ($ignored) {
                 echo Html::tag('span', Yii::t('message', 'Answer'), [
                     'class' => 'btn btn-primary disabled',
