@@ -58,7 +58,9 @@ rmrevin\yii\fontawesome\AssetBundle::register($this);
                 'attribute' => 'title',
                 'format' => 'raw', // do not use 'format' => 'html' because the 'data-pjax=0' gets swallowed.
                 'value' => function ($data) {
-                    return Html::a($data->title, ['view', 'hash' => $data->hash], ['data-pjax' => 0]);
+                    return Html::a(
+                            $data->status == Message::STATUS_UNREAD ? '<strong>' . $data->title . '</strong>' : $data->title,
+                            ['view', 'hash' => $data->hash], ['data-pjax' => 0]);
                 },
             ],
             [
