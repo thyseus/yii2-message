@@ -12,6 +12,8 @@ the definition of which users are able to write to whom) is supported.
 You need a Model with the 'id' and 'username' attributes. This needs to be an ActiveRecord or Model instance.
 
 I suggest to use https://github.com/dektrium/yii2-user which works wonderful with this module.
+Note that dektrium is no longer maintained, for future projects you should take a look at:
+https://github.com/2amigos/yii2-usuario
 
 ## Installation
 
