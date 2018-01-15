@@ -30,6 +30,14 @@ class Message extends ActiveRecord
         return '{{%message}}';
     }
 
+    /**
+     * @param $from the user id of the sender. Set to null to send a 'system' message.
+     * @param $to the user id of the recipient
+     * @param $title title of the message (required)
+     * @param string $message body of the message (optional)
+     * @param null $context set a string or url to define what this message referrs to (optional)
+     * @return Message
+     */
     public static function compose($from, $to, $title, $message = '', $context = null)
     {
         $model = new Message;
@@ -200,6 +208,10 @@ class Message extends ActiveRecord
         ];
     }
 
+    /**
+     * Never delete the message physically on the database level. It should always stay in the 'sent' folder of the sender.
+     * @return int
+     */
     public function delete()
     {
         return $this->updateAttributes(['status' => Message::STATUS_DELETED]);
