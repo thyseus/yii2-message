@@ -2,8 +2,6 @@
 use thyseus\message\models\Message;
 use yii\grid\GridView;
 use yii\helpers\Html;
-use yii\widgets\Pjax;
-
 
 /* @var $this yii\web\View */
 /* @var $searchModel app\models\MessageSearch */
@@ -22,8 +20,6 @@ rmrevin\yii\fontawesome\AssetBundle::register($this);
     <p> <?= Html::a(Yii::t('message', 'Write a message') . ' <i class="fa fa-plus"></i>', ['compose'], ['class' => 'btn btn-success']) ?> </p>
 
     <hr>
-
-    <?php Pjax::begin(); ?>
 
     <?= GridView::widget([
         'dataProvider' => $dataProvider,
@@ -101,5 +97,3 @@ rmrevin\yii\fontawesome\AssetBundle::register($this);
             ],
         ],
     ]); ?>
-
-    <?php Pjax::end(); ?></div>

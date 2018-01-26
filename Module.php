@@ -82,7 +82,6 @@ class Module extends BaseModule
      */
     public $mailer = 'mailer';
 
-
     /**
      * @var bool Set to true to use an mailqueue like yii2-queue: https://github.com/yiisoft/yii2-queue/
      */
