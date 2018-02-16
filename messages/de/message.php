@@ -43,4 +43,5 @@ return [
     'This message has been sent from the System' => 'Diese Nachricht wurde vom System versandt',
     'Answer message' => 'Nachricht beantworten',
     'Original message' => 'Ursprüngliche Nachricht',
+    'Mark all messages as read' =>  'Alles als gelesen markieren',
 ];

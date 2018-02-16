@@ -17,7 +17,12 @@ rmrevin\yii\fontawesome\AssetBundle::register($this);
 
     <h1><?= Html::encode($this->title) ?></h1>
 
-    <p> <?= Html::a(Yii::t('message', 'Write a message') . ' <i class="fa fa-plus"></i>', ['compose'], ['class' => 'btn btn-success']) ?> </p>
+    <?= Html::a(
+        '<i class="fa fa-plus"></i> ' . Yii::t('message', 'Write a message'),
+        ['compose'], ['class' => 'btn btn-success']) ?>
+    <?= Html::a(
+        '<i class="fa fa-flag-checkered"></i> ' . Yii::t('message', 'Mark all messages as read'),
+        ['mark-all-as-read'], ['class' => 'btn btn-success pull-right']) ?>
 
     <hr>
 

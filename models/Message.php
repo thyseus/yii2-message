@@ -111,7 +111,7 @@ class Message extends ActiveRecord
             [['to'], 'exist',
                 'targetClass' => Yii::$app->getModule('message')->userModelClass,
                 'targetAttribute' => 'id',
-                'message' => Yii::t('message', 'Recipient has not been found'),
+                'message' => Yii::t('app', 'Recipient has not been found'),
             ]
         ];
     }

@@ -198,8 +198,10 @@ class MessageController extends Controller
     {
         foreach (Message::find()->where([
             'to' => Yii::$app->user->id,
-            'status' => Message::STATUS_UNREAD])->all() as $message)
+            'status' => Message::STATUS_UNREAD,
+        ])->all() as $message) {
             $message->updateAttributes(['status' => Message::STATUS_READ]);
+        }
 
         return $this->redirect(Yii::$app->request->referrer);
     }
