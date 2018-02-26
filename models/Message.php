@@ -208,6 +208,12 @@ class Message extends ActiveRecord
         ];
     }
 
+    /** We need to avoid the "Serialization of 'Closure'" is not allowed exception
+     * when sending the serialized message object to the queue */
+    public function __sleep() {
+        return [];
+    }
+
     /**
      * Never delete the message physically on the database level. It should always stay in the 'sent' folder of the sender.
      * @return int
@@ -224,7 +230,6 @@ class Message extends ActiveRecord
         else
             return $this->recipient->username;
     }
-
 
     public function getAllowedContacts()
     {
