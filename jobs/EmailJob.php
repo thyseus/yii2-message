@@ -2,7 +2,7 @@
 
 namespace thyseus\message\jobs;
 
-use yii\base\Object;
+use yii\base\BaseObject;
 use yii\queue\Job;
 
 /**
@@ -10,7 +10,7 @@ use yii\queue\Job;
  * This EmailJob is being pushed to the yii2-queue in case 'useMailQueue' is set to true in the module configuration.
  * @package thyseus\message\jobs
  */
-class EmailJob extends Object implements Job
+class EmailJob extends BaseObject implements Job
 {
     public $mailing;
 
