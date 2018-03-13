@@ -296,7 +296,8 @@ class MessageController extends Controller
      *
      * If creation is successful, the browser will be redirected to the referrer, or 'inbox' page if not set.
      *
-     * When this action is called by an Ajax Request, the view is prepared to return a partial view.
+     * When this action is called by an Ajax Request, the view is prepared to return a partial view. This is useful
+     * if you want to render the compose form inside a Modal.
      *
      * Since 0.4.0:
      *
@@ -347,8 +348,9 @@ class MessageController extends Controller
         if (Yii::$app->request->isPost) {
             $recipients = Yii::$app->request->post()['Message']['to'];
 
-            if (is_numeric($recipients)) # Only one recipient given
+            if (is_numeric($recipients)) { # Only one recipient given
                 $recipients = [$recipients];
+            }
 
             if (isset($_POST['send-message'])) {
                 foreach ($recipients as $recipient_id) {
@@ -375,6 +377,7 @@ class MessageController extends Controller
                 $model->load(Yii::$app->request->post());
                 $model->status = Message::STATUS_DRAFT;
                 $model->from = Yii::$app->user->id;
+
                 if ($model->to) {
                     $model->to = implode(', ', $recipients);
                 }
@@ -385,42 +388,42 @@ class MessageController extends Controller
                     'The message has been saved as draft'));
             }
             return Yii::$app->request->isAjax ? true : $this->goBack();
-        } else {
-            if ($to) {
-                $model->to = [$to];
-            }
-
-            if ($context) {
-                $model->context = $context;
-            }
-
-            if ($answers) {
-                $prefix = Yii::$app->getModule('message')->answerPrefix;
-
-                // avoid stacking of prefixes (Re: Re: Re:)
-                if (substr($origin->title, 0, strlen($prefix)) !== $prefix) {
-                    $model->title = $prefix . $origin->title;
-                } else {
-                    $model->title = $origin->title;
-                }
-
-                $model->context = $origin->context;
-            }
-
-            if ($signature = Message::getSignature(Yii::$app->user->id)) {
-                $model->message = $signature->message;
-            }
-
-            return $this->render('compose', [
-                'model' => $model,
-                'answers' => $answers,
-                'origin' => isset($origin) ? $origin : null,
-                'context' => $context,
-                'dialog' => Yii::$app->request->isAjax,
-                'allow_multiple' => true,
-                'possible_recipients' => ArrayHelper::map($possible_recipients, 'id', 'username'),
-            ]);
         }
+
+        if (is_numeric($to)) {
+            $model->to = [$to];
+        }
+
+        if ($context) {
+            $model->context = $context;
+        }
+
+        if ($answers) {
+            $prefix = Yii::$app->getModule('message')->answerPrefix;
+
+            // avoid stacking of prefixes (Re: Re: Re:)
+            if (substr($origin->title, 0, strlen($prefix)) !== $prefix) {
+                $model->title = $prefix . $origin->title;
+            } else {
+                $model->title = $origin->title;
+            }
+
+            $model->context = $origin->context;
+        }
+
+        if ($signature = Message::getSignature(Yii::$app->user->id)) {
+            $model->message = $signature->message;
+        }
+
+        return $this->render('compose', [
+            'model' => $model,
+            'answers' => $answers,
+            'origin' => isset($origin) ? $origin : null,
+            'context' => $context,
+            'dialog' => Yii::$app->request->isAjax,
+            'allow_multiple' => true,
+            'possible_recipients' => ArrayHelper::map($possible_recipients, 'id', 'username'),
+        ]);
     }
 
     public function add_to_recipient_list($to)

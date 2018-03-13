@@ -72,7 +72,10 @@ rmrevin\yii\fontawesome\AssetBundle::register($this);
         <div class="form-group">
             <?php
             if ($dialog) {
-                echo Html::button(Yii::t('message', 'Send'), ['class' => 'btn btn-success btn-send-message']);
+                echo Html::submitButton('<i class="fa fa-envelope"></i> ' . Yii::t('message', 'Send'), [
+                        'name' => 'send-message',
+                        'class' => 'btn btn-success btn-send-message',
+                    ]);
             } else {
                 echo Html::submitButton('<i class="fa fa-floppy-o"></i> ' . Yii::t('message', 'Save as Draft'), [
                     'name' => 'save-as-draft',
