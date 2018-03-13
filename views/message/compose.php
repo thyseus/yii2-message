@@ -71,28 +71,24 @@ rmrevin\yii\fontawesome\AssetBundle::register($this);
 
         <div class="form-group">
             <?php
-            if ($dialog) {
-                echo Html::submitButton('<i class="fa fa-envelope"></i> ' . Yii::t('message', 'Send'), [
-                        'name' => 'send-message',
-                        'class' => 'btn btn-success btn-send-message',
-                    ]);
-            } else {
+            if (!$dialog) {
                 echo Html::submitButton('<i class="fa fa-floppy-o"></i> ' . Yii::t('message', 'Save as Draft'), [
                     'name' => 'save-as-draft',
-                    'class' => 'btn btn-success']);
-                echo Html::submitButton('<i class="fa fa-envelope"></i> ' . Yii::t('message', 'Send'), [
-                    'data-confirm' => Yii::t('message', 'Are you sure you want to sent this message?'),
-                    'name' => 'send-message',
-                    'class' => 'btn btn-success pull-right']);
-            } ?>
+                    'class' => 'btn btn-success btn-draft']);
+            }
+            echo Html::submitButton('<i class="fa fa-envelope"></i> ' . Yii::t('message', 'Send'), [
+                'data-confirm' => Yii::t('message', 'Are you sure you want to sent this message?'),
+                'name' => 'send-message',
+                'class' => 'btn btn-success btn-send pull-right']);
+            ?>
         </div>
 
         <?php ActiveForm::end(); ?>
 
-        <?php if (!Yii::$app->request->isAjax): ?>
+        <?php if (!$dialog) { ?>
             <hr>
             <?php echo Html::a('<i class="fa fa-arrow-left" aria-hidden="true"></i> ' . Yii::t('message', 'Back to Inbox'), ['/message/message/inbox']) ?>
-        <?php endif ?>
+        <?php } ?>
     </div>
 
 </div>

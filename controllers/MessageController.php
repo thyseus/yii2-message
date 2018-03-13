@@ -3,6 +3,7 @@
 namespace thyseus\message\controllers;
 
 use app\models\User;
+use thyseus\message\events\MessageSentEvent;
 use thyseus\message\models\AllowedContacts;
 use thyseus\message\models\IgnoreListEntry;
 use thyseus\message\models\Message;
@@ -19,10 +20,13 @@ use yii\web\NotFoundHttpException;
 use yii\web\Response;
 
 /**
- * MessageController implements the CRUD actions for Message model.
+ * MessageController handles all user actions related to the yii2-message module
  */
 class MessageController extends Controller
 {
+    const EVENT_BEFORE_SEND = 'event_before_send';
+    const EVENT_AFTER_SEND = 'event_after_send';
+
     /**
      * @inheritdoc
      */
@@ -318,6 +322,8 @@ class MessageController extends Controller
      */
     public function actionCompose($to = null, $answers = null, $context = null, $add_to_recipient_list = false)
     {
+        $this->trigger(self::EVENT_BEFORE_SEND);
+
         if (Yii::$app->request->isAjax) {
             $this->layout = false;
         }
@@ -367,6 +373,11 @@ class MessageController extends Controller
                         }
                     }
                 }
+
+                $event = new MessageSentEvent;
+                $event->postData = Yii::$app->request->post();
+                $event->message = $model;
+                $this->trigger(self::EVENT_AFTER_SEND, $event);
 
                 Yii::$app->session->setFlash(
                     'success', Yii::t('message',
