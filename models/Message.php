@@ -14,6 +14,7 @@ use yii\behaviors\AttributeBehavior;
 use yii\behaviors\TimestampBehavior;
 use yii\db\ActiveRecord;
 use yii\db\Expression;
+use yii\helpers\ArrayHelper;
 
 class Message extends ActiveRecord
 {
@@ -21,6 +22,8 @@ class Message extends ActiveRecord
     const STATUS_UNREAD = 0;
     const STATUS_READ = 1;
     const STATUS_ANSWERED = 2;
+    const STATUS_DRAFT = 3;
+    const STATUS_SIGNATURE = 4;
 
     const EVENT_BEFORE_MAIL = 'before_mail';
     const EVENT_AFTER_MAIL = 'after_mail';
@@ -100,11 +103,25 @@ class Message extends ActiveRecord
         return $users;
     }
 
+    /**
+     * Get all Users that have ever written a message to the given user
+     * @param $user_id the user to check for
+     * @return array the users that have written him
+     */
+    public static function userFilter($user_id)
+    {
+        return ArrayHelper::map(
+            Message::find()
+                ->where(['to' => $user_id])
+                ->select('from')
+                ->groupBy('from')
+                ->all(), 'from', 'sender.username');
+    }
+
     public function rules()
     {
         return [
-            [['to', 'title'], 'required'],
-            [['to'], 'integer'],
+            [['title'], 'required'],
             [['title', 'message', 'context'], 'string'],
             [['title'], 'string', 'max' => 255],
             [['to'], IgnoreListValidator::className()],
@@ -112,8 +129,31 @@ class Message extends ActiveRecord
                 'targetClass' => Yii::$app->getModule('message')->userModelClass,
                 'targetAttribute' => 'id',
                 'message' => Yii::t('app', 'Recipient has not been found'),
-            ]
+            ],
+            [['to'], 'required',
+                'when' => function ($model) {
+                    return !$model->status || !in_array($model->status, [
+                            self::STATUS_DRAFT,
+                            self::STATUS_SIGNATURE,
+                        ]);
+                }, 'whenClient' => "function (attribute, value) {
+             return ($('form [draft-form]').length 
+             || $('form [signature-form]').length 
+             || $('form [out-of-office-form]').length)
+             }",],
         ];
+    }
+
+    /**
+     * @param $user_id
+     * @return array|null|Message|ActiveRecord
+     */
+    public static function getSignature($user_id)
+    {
+        return Message::find()->where([
+            'from' => $user_id,
+            'status' => Message::STATUS_SIGNATURE,
+        ])->one();
     }
 
     public function behaviors()
@@ -203,14 +243,15 @@ class Message extends ActiveRecord
             'to' => Yii::t('message', 'to'),
             'title' => Yii::t('message', 'title'),
             'message' => Yii::t('message', 'message'),
-            'created_at' => Yii::t('message', 'sent at'),
+            'created_at' => Yii::t('message', 'created at'),
             'context' => Yii::t('message', 'context'),
         ];
     }
 
     /** We need to avoid the "Serialization of 'Closure'" is not allowed exception
      * when sending the serialized message object to the queue */
-    public function __sleep() {
+    public function __sleep()
+    {
         return [];
     }
 

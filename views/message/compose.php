@@ -21,6 +21,10 @@ rmrevin\yii\fontawesome\AssetBundle::register($this);
 
     <?php if (!$dialog): ?>
         <h1> <?= Html::encode($this->title) ?> </h1>
+
+        <?= $this->render('_actions'); ?>
+
+        <hr>
     <?php endif ?>
 
     <div class="message-form">
@@ -67,10 +71,17 @@ rmrevin\yii\fontawesome\AssetBundle::register($this);
 
         <div class="form-group">
             <?php
-            if ($dialog)
+            if ($dialog) {
                 echo Html::button(Yii::t('message', 'Send'), ['class' => 'btn btn-success btn-send-message']);
-            else
-                echo Html::submitButton(Yii::t('message', 'Send'), ['class' => 'btn btn-success']) ?>
+            } else {
+                echo Html::submitButton('<i class="fa fa-floppy-o"></i> ' . Yii::t('message', 'Save as Draft'), [
+                    'name' => 'save-as-draft',
+                    'class' => 'btn btn-success']);
+                echo Html::submitButton('<i class="fa fa-envelope"></i> ' . Yii::t('message', 'Send'), [
+                    'data-confirm' => Yii::t('message', 'Are you sure you want to sent this message?'),
+                    'name' => 'send-message',
+                    'class' => 'btn btn-success pull-right']);
+            } ?>
         </div>
 
         <?php ActiveForm::end(); ?>

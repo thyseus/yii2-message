@@ -2,10 +2,8 @@
 
 namespace thyseus\message\models;
 
-use Yii;
 use yii\base\Model;
 use yii\data\ActiveDataProvider;
-use thyseus\message\models\Message;
 
 /**
  * MessageSearch represents the model behind the search form about `app\models\Message`.
@@ -13,6 +11,8 @@ use thyseus\message\models\Message;
 class MessageSearch extends Message
 {
     public $inbox = false;
+    public $sent = false;
+    public $draft = false;
 
     /**
      * @inheritdoc
@@ -54,7 +54,7 @@ class MessageSearch extends Message
 
         $dataProvider = new ActiveDataProvider([
             'query' => $query,
-            'sort'=> ['defaultOrder' => ['created_at'=>SORT_DESC]]
+            'sort' => ['defaultOrder' => ['created_at' => SORT_DESC]]
         ]);
 
         $this->load($params);
@@ -74,8 +74,29 @@ class MessageSearch extends Message
             'status' => $this->status,
         ]);
 
-        if($this->inbox)
-          $query->andFilterWhere(['>=', 'status', 0]);
+        if ($this->draft) {
+            $query->andFilterWhere(['status' => [
+                Message::STATUS_DRAFT,
+                Message::STATUS_SIGNATURE,
+            ]]);
+
+            $query->andFilterWhere(['not in', 'status', [
+                Message::STATUS_READ,
+                Message::STATUS_UNREAD,
+            ]]);
+        } else {
+            $query->andFilterWhere(['not in', 'status', [
+                Message::STATUS_DRAFT,
+                Message::STATUS_SIGNATURE,
+            ]]);
+        }
+
+        // We dont care if the recipient removed the message. We still see them as "sent". This is crucial !
+        if (!$this->sent) {
+            $query->andFilterWhere(['not in', 'status', [
+                Message::STATUS_DELETED,
+            ]]);
+        }
 
         $query->andFilterWhere(['like', 'hash', $this->hash])
             ->andFilterWhere(['like', 'title', $this->title])

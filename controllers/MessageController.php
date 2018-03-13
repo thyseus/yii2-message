@@ -34,7 +34,10 @@ class MessageController extends Controller
                 'rules' => [
                     [
                         'allow' => true,
-                        'actions' => ['inbox', 'ignorelist', 'sent', 'compose', 'view', 'delete', 'mark-all-as-read', 'check-for-new-messages'],
+                        'actions' => [
+                            'inbox', 'drafts', 'signature', 'out-of-office', 'ignorelist',
+                            'sent', 'compose', 'view', 'delete', 'mark-all-as-read',
+                            'check-for-new-messages', 'manage-draft'],
                         'roles' => ['@'],
                     ],
                 ],
@@ -113,14 +116,42 @@ class MessageController extends Controller
 
         $dataProvider = $searchModel->search(Yii::$app->request->queryParams);
 
-        $users = ArrayHelper::map(
-            Message::find()->where(['to' => Yii::$app->user->id])->select('from')->groupBy('from')->all(), 'from', 'sender.username');
-
         return $this->render('inbox', [
             'searchModel' => $searchModel,
             'dataProvider' => $dataProvider,
-            'users' => $users,
+            'users' => Message::userFilter(Yii::$app->user->id),
         ]);
+    }
+
+    /**
+     * Lists all Message models where i am the recipient.
+     * @return mixed
+     */
+    public function actionDrafts()
+    {
+        $searchModel = new MessageSearch();
+        $searchModel->from = Yii::$app->user->id;
+        $searchModel->draft = true;
+
+        Yii::$app->user->setReturnUrl(['//message/message/drafts']);
+
+        $dataProvider = $searchModel->search(Yii::$app->request->queryParams);
+
+        return $this->render('drafts', [
+            'searchModel' => $searchModel,
+            'dataProvider' => $dataProvider,
+            'users' => $this->recipientsFor(Yii::$app->user->id),
+        ]);
+    }
+
+    protected function recipientsFor($user_id)
+    {
+        return ArrayHelper::map(
+            Message::find()
+                ->where(['from' => Yii::$app->user->id])
+                ->select('to')
+                ->groupBy('to')
+                ->all(), 'to', 'recipient.username');
     }
 
     /**
@@ -144,9 +175,13 @@ class MessageController extends Controller
                     ]);
 
                     if ($model->save()) {
-                        Yii::$app->session->setFlash('success', Yii::t('message', 'The list of ignored users has been saved'));
+                        Yii::$app->session->setFlash(
+                            'success', Yii::t('message',
+                            'The list of ignored users has been saved'));
                     } else {
-                        Yii::$app->session->setFlash('error', Yii::t('message', 'The list of ignored users could not be saved'));
+                        Yii::$app->session->setFlash(
+                            'error', Yii::t('message',
+                            'The list of ignored users could not be saved'));
                     }
                 }
             }
@@ -163,7 +198,10 @@ class MessageController extends Controller
             $ignored_users[] = $ignore['blocks_user_id'];
         }
 
-        return $this->render('ignorelist', ['users' => $users, 'ignored_users' => $ignored_users]);
+        return $this->render('ignorelist', [
+            'users' => $users,
+            'ignored_users' => $ignored_users,
+        ]);
     }
 
     /**
@@ -174,17 +212,15 @@ class MessageController extends Controller
     {
         $searchModel = new MessageSearch();
         $searchModel->from = Yii::$app->user->id;
+        $searchModel->sent = true;
         $dataProvider = $searchModel->search(Yii::$app->request->queryParams);
 
         Yii::$app->user->setReturnUrl(['//message/message/sent']);
 
-        $users = ArrayHelper::map(
-            Message::find()->where(['from' => Yii::$app->user->id])->select('to')->groupBy('to')->all(), 'to', 'recipient.username');
-
         return $this->render('sent', [
             'searchModel' => $searchModel,
             'dataProvider' => $dataProvider,
-            'users' => $users,
+            'users' => $this->recipientsFor(Yii::$app->user->id),
         ]);
     }
 
@@ -202,6 +238,10 @@ class MessageController extends Controller
         ])->all() as $message) {
             $message->updateAttributes(['status' => Message::STATUS_READ]);
         }
+
+        Yii::$app->session->setFlash(
+            'success', Yii::t('message',
+            'All messages in your inbox have been marked as read'));
 
         return $this->redirect(Yii::$app->request->referrer);
     }
@@ -245,14 +285,26 @@ class MessageController extends Controller
 
     /**
      * Compose a new Message.
+     *
      * When it is an answers to a message ($answers is set) it will set the status of the original message to 'Answered'.
      * You can set an 'context' to link this message on to an entity inside your application. This should be an
      * id or slug or other identifier.
+     *
      * If $to and $add_to_recipient_list is set, the recipient will be added to the allowed contacts list. The sender
      * will also be included in the recipient´s allowed contact list. Use this to allow first contact between users
      * in an application where contacts are limited.
+     *
      * If creation is successful, the browser will be redirected to the referrer, or 'inbox' page if not set.
+     *
      * When this action is called by an Ajax Request, the view is prepared to return a partial view.
+     *
+     * Since 0.4.0:
+     *
+     * Depending on the submit button that has been used we probably save the message as a draft
+     * instead of sending it directly.
+     *
+     * When a signature is given by the user, we preload the signature in the message.
+     *
      * @see README.md
      * @var $to integer|null The 'recipient' attribute will be prefilled with the user of this id
      * @var $answers string|null This message will be marked as an answer to the message of this hash
@@ -298,19 +350,39 @@ class MessageController extends Controller
             if (is_numeric($recipients)) # Only one recipient given
                 $recipients = [$recipients];
 
-            foreach ($recipients as $recipient_id) {
-                $model = new Message();
-                $model->load(Yii::$app->request->post());
-                $model->from = Yii::$app->user->id;
-                $model->to = $recipient_id;
-                $model->status = Message::STATUS_UNREAD;
-                $model->save();
+            if (isset($_POST['send-message'])) {
+                foreach ($recipients as $recipient_id) {
+                    $model = new Message();
+                    $model->load(Yii::$app->request->post());
+                    $model->from = Yii::$app->user->id;
+                    $model->to = $recipient_id;
+                    $model->status = Message::STATUS_UNREAD;
+                    $model->save();
 
-                if ($answers) {
-                    if ($origin && $origin->to == Yii::$app->user->id && $origin->status == Message::STATUS_READ) {
-                        $origin->updateAttributes(['status' => Message::STATUS_ANSWERED]);
+                    if ($answers) {
+                        if ($origin && $origin->to == Yii::$app->user->id && $origin->status == Message::STATUS_READ) {
+                            $origin->updateAttributes(['status' => Message::STATUS_ANSWERED]);
+                        }
                     }
                 }
+
+                Yii::$app->session->setFlash(
+                    'success', Yii::t('message',
+                    'The message has been sent.'));
+
+            } else if (isset($_POST['save-as-draft'])) {
+                $model = new Message();
+                $model->load(Yii::$app->request->post());
+                $model->status = Message::STATUS_DRAFT;
+                $model->from = Yii::$app->user->id;
+                if ($model->to) {
+                    $model->to = implode(', ', $recipients);
+                }
+                $model->save();
+
+                Yii::$app->session->setFlash(
+                    'success', Yii::t('message',
+                    'The message has been saved as draft'));
             }
             return Yii::$app->request->isAjax ? true : $this->goBack();
         } else {
@@ -333,6 +405,10 @@ class MessageController extends Controller
                 }
 
                 $model->context = $origin->context;
+            }
+
+            if ($signature = Message::getSignature(Yii::$app->user->id)) {
+                $model->message = $signature->message;
             }
 
             return $this->render('compose', [
@@ -366,6 +442,83 @@ class MessageController extends Controller
         } else throw new NotFoundHttpException();
     }
 
+    public function actionSignature()
+    {
+        $signature = Message::getSignature(Yii::$app->user->id);
+
+        if (!$signature) {
+            $signature = new Message;
+            $signature->title = 'Signature';
+            $signature->status = Message::STATUS_SIGNATURE;
+
+            Yii::$app->session->setFlash(
+                'success', Yii::t('message',
+                'You do not have an signature yet. You can set it here.'));
+        }
+
+        if (Yii::$app->request->isPost) {
+            $signature->load(Yii::$app->request->post());
+            $signature->from = Yii::$app->user->id;
+            $signature->save();
+
+            Yii::$app->session->setFlash(
+                'success', Yii::t('message',
+                'Your signature has been saved.'));
+        }
+
+        return $this->render('signature', ['signature' => $signature]);
+    }
+
+    public function actionManageDraft($hash = null)
+    {
+        if ($hash) {
+            $draft = Message::find()->where(['from' => Yii::$app->user->id, 'hash' => $hash])->one();
+            if (!$draft) {
+                throw new NotFoundHttpException();
+            }
+        } else {
+            $draft = new Message;
+        }
+
+        $draft->status = Message::STATUS_DRAFT;
+        $draft->from = Yii::$app->user->id;
+        $possible_recipients = Message::getPossibleRecipients(Yii::$app->user->id);
+
+        if (Yii::$app->request->isPost) {
+            $draft->load(Yii::$app->request->post());
+
+            if ($draft->save()) {
+                if (isset($_POST['save-draft'])) {
+                    Yii::$app->session->setFlash(
+                        'success', Yii::t('message',
+                        'The message has been saved as draft'));
+
+                    Yii::$app->user->setReturnUrl(['//message/message/drafts']);
+                } else if (isset($_POST['send-draft'])) {
+                    $message = new Message;
+                    $message->attributes = $draft->attributes;
+                    $message->from = Yii::$app->user->id;
+                    $message->status = Message::STATUS_UNREAD;
+                    $message->save();
+
+
+                    Yii::$app->session->setFlash(
+                        'success', Yii::t('message',
+                        'The message has been sent.'));
+
+                    Yii::$app->user->setReturnUrl(['//message/message/inbox']);
+                }
+
+                return $this->goBack();
+            }
+        }
+
+        return $this->render('draft', [
+            'draft' => $draft,
+            'possible_recipients' => ArrayHelper::map($possible_recipients, 'id', 'username'),
+        ]);
+    }
+
     /**
      * Deletes an existing Message model.
      * If deletion is successful, the browser will be redirected to the 'index' page.
@@ -376,11 +529,26 @@ class MessageController extends Controller
     {
         $model = $this->findModel($hash);
 
-        if ($model->to != Yii::$app->user->id)
+        if (in_array($model->status, [
+                Message::STATUS_READ,
+                Message::STATUS_UNREAD,
+                Message::STATUS_ANSWERED,
+            ]) && $model->to != Yii::$app->user->id) {
             throw new ForbiddenHttpException;
+        }
+
+        if (in_array($model->status, [
+                Message::STATUS_DRAFT,
+            ]) && $model->from != Yii::$app->user->id) {
+            throw new ForbiddenHttpException;
+        }
 
         $model->delete();
 
-        return $this->redirect(['inbox']);
+        Yii::$app->session->setFlash(
+            'success', Yii::t('message',
+            'The message has been deleted.'));
+
+        return $this->redirect(Yii::$app->request->referrer);
     }
 }

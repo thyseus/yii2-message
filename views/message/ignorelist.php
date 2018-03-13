@@ -18,7 +18,11 @@ rmrevin\yii\fontawesome\AssetBundle::register($this);
 
 <div class="row">
     <div class="col-md-12">
-        <h1><?= Html::encode($this->title) ?></h1>
+        <h2> <?= $this->title; ?> </h2>
+
+        <?= $this->render('_actions'); ?>
+
+        <hr>
 
         <?= Html::beginForm(['//message/message/ignorelist'], 'post'); ?>
 

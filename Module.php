@@ -96,12 +96,15 @@ class Module extends BaseModule
     /** @var array The rules to be used in URL management. */
     public $urlRules = [
         'message/inbox' => 'message/message/inbox',
+        'message/drafts' => 'message/message/drafts',
+        'message/signature' => 'message/message/signature',
+        'message/manage-draft<hash>' => 'message/message/manage-draft',
         'message/ignorelist' => 'message/message/ignorelist',
         'message/sent' => 'message/message/sent',
         'message/compose/to/<to:\d+>/answers/<answers:\d+>' => 'message/message/compose',
         'message/compose/to/<to:\d+>' => 'message/message/compose',
         'message/compose/' => 'message/message/compose',
-        'message/delete/<hash:\d+>' => 'message/message/delete',
+        'message/delete/<hash>' => 'message/message/delete',
         'message/<hash:\w+>' => 'message/message/view',
     ];
 

@@ -6,6 +6,7 @@ the definition of which users are able to write to whom) is supported.
 - Encryption is not (yet?) supported.
 - Uses Font Awesome (http://fontawesome.io/) for some icons
 - Every message sent inside the messaging system can be forwarded to the recipient be e-mail automatically.
+- Since 0.4.0 you can save drafts and use signatures
 
 ## Prerequisites:
 
@@ -86,6 +87,9 @@ The recipients filter is applied after the ignore list.
 The following Actions are possible:
 
 * inbox: https://your-domain/message/message/inbox
+* drafts: https://your-domain/message/message/drafts
+* signature: https://your-domain/message/message/signature
+* out-of-office: https://your-domain/message/message/out-of-office
 * sent messages: https://your-domain/message/message/sent
 * compose a message: https://your-domain/message/message/compose
 * delete a message: https://your-domain/message/message/delete/hash/<hash>
@@ -109,10 +113,15 @@ echo Nav::widget([
       'label' => $messagelabel,
       'url' => '',
       'visible' => !Yii::$app->user->isGuest, 'items' => [
-        ['label' => 'Inbox', 'url' => ['/message/message/inbox']],
-        ['label' => 'Sent', 'url' => ['/message/message/sent']],
-        ['label' => 'Compose a Message', 'url' => ['/message/message/compose']],
-        ['label' => 'Manage your Ignorelist', 'url' => ['/message/message/ignorelist']],
+        ['label' => '<i class="fa fa-inbox"></i> Inbox', 'url' => ['/message/message/inbox']],
+        ['label' => '<i class="fa fa-paper-plane"></i> Sent', 'url' => ['/message/message/sent']],
+        '<hr>',
+        ['label' => '<i class="fa fa-file-text-o"></i> Drafts', 'url' => ['/message/message/drafts']],
+        ['label' => '<i class="fa fa-pencil-square-o"></i> Signature', 'url' => ['/message/message/signature']],
+        ['label' => '<i class="fa fa-calendar"></i> Out of Office', 'url' => ['/message/message/out-of-office']],
+        ['label' => '<i class="fa fa-ban"></i> Manage your Ignorelist', 'url' => ['/message/message/ignorelist']],
+        '<hr>',
+        ['label' => '<i class="fa fa-plus"></i> Compose a Message', 'url' => ['/message/message/compose']],
       ]
     ],
     // ...

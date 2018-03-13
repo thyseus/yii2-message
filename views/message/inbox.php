@@ -15,14 +15,7 @@ rmrevin\yii\fontawesome\AssetBundle::register($this);
 ?>
 <div class="message-index">
 
-    <h1><?= Html::encode($this->title) ?></h1>
-
-    <?= Html::a(
-        '<i class="fa fa-plus"></i> ' . Yii::t('message', 'Write a message'),
-        ['compose'], ['class' => 'btn btn-success']) ?>
-    <?= Html::a(
-        '<i class="fa fa-flag-checkered"></i> ' . Yii::t('message', 'Mark all messages as read'),
-        ['mark-all-as-read'], ['class' => 'btn btn-success pull-right']) ?>
+    <?= $this->render('_actions'); ?>
 
     <hr>
 
@@ -92,7 +85,7 @@ rmrevin\yii\fontawesome\AssetBundle::register($this);
                 'filter' => false,
                 'format' => 'raw',
                 'value' => function($data) {
-                    return Html::a('<i class="glyphicon glyphicon-remove">', ['delete', 'hash' => $data->hash], [
+                    return Html::a('<i class="fa fa-remove">', ['delete', 'hash' => $data->hash], [
                         'data-pjax' => 0,
                         'data-method' => 'POST',
                         'data-confirm' => Yii::t('message', 'Are you sure you want to delete this message?'),
