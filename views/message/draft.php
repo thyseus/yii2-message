@@ -23,7 +23,7 @@ rmrevin\yii\fontawesome\AssetBundle::register($this);
 
         <?php $form = ActiveForm::begin(['id' => 'draft-form']); ?>
 
-        <?= $form->field($draft, 'to')->widget(Select2::className(), [
+        <?= $form->field($draft, 'to')->widget(Select2::class, [
             'data' => $possible_recipients,
             'options' => [
                 'multiple' => false,

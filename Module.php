@@ -112,7 +112,7 @@ class Module extends BaseModule
     {
         if (!isset(Yii::$app->get('i18n')->translations['message*'])) {
             Yii::$app->get('i18n')->translations['message*'] = [
-                'class' => PhpMessageSource::className(),
+                'class' => PhpMessageSource::class,
                 'basePath' => __DIR__ . '/messages',
                 'sourceLanguage' => 'en-US'
             ];

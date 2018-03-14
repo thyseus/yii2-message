@@ -34,7 +34,7 @@ class MessageController extends Controller
     {
         return [
             'access' => [
-                'class' => AccessControl::className(),
+                'class' => AccessControl::class,
                 'rules' => [
                     [
                         'allow' => true,
@@ -47,7 +47,7 @@ class MessageController extends Controller
                 ],
             ],
             'verbs' => [
-                'class' => VerbFilter::className(),
+                'class' => VerbFilter::class,
                 'actions' => [
                     'delete' => ['POST'],
                 ],
@@ -172,7 +172,7 @@ class MessageController extends Controller
             if (isset(Yii::$app->request->post()['ignored_users'])) {
                 foreach (Yii::$app->request->post()['ignored_users'] as $ignored_user) {
                     $model = Yii::createObject([
-                        'class' => IgnoreListEntry::className(),
+                        'class' => IgnoreListEntry::class,
                         'user_id' => Yii::$app->user->id,
                         'blocks_user_id' => $ignored_user,
                         'created_at' => date('Y-m-d G:i:s'),

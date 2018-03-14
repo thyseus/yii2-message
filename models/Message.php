@@ -124,23 +124,13 @@ class Message extends ActiveRecord
             [['title'], 'required'],
             [['title', 'message', 'context'], 'string'],
             [['title'], 'string', 'max' => 255],
-            [['to'], IgnoreListValidator::className()],
+            [['to'], IgnoreListValidator::class],
             [['to'], 'exist',
                 'targetClass' => Yii::$app->getModule('message')->userModelClass,
                 'targetAttribute' => 'id',
                 'message' => Yii::t('app', 'Recipient has not been found'),
             ],
-            [['to'], 'required',
-                'when' => function ($model) {
-                    return !$model->status || !in_array($model->status, [
-                            self::STATUS_DRAFT,
-                            self::STATUS_SIGNATURE,
-                        ]);
-                }, 'whenClient' => "function (attribute, value) {
-             return ($('form [draft-form]').length 
-             || $('form [signature-form]').length 
-             || $('form [out-of-office-form]').length)
-             }",],
+            [['to'], 'required'],
         ];
     }
 
@@ -160,12 +150,12 @@ class Message extends ActiveRecord
     {
         return [
             [
-                'class' => AttributeBehavior::className(),
+                'class' => AttributeBehavior::class,
                 'attributes' => [ActiveRecord::EVENT_BEFORE_INSERT => 'hash'],
                 'value' => md5(uniqid(rand(), true)),
             ],
             [
-                'class' => TimestampBehavior::className(),
+                'class' => TimestampBehavior::class,
                 'createdAtAttribute' => 'created_at',
                 'updatedAtAttribute' => null,
                 'value' => new Expression('NOW()'),
@@ -274,7 +264,7 @@ class Message extends ActiveRecord
 
     public function getAllowedContacts()
     {
-        return $this->hasOne(AllowedContacts::className(), ['id' => 'user_id']);
+        return $this->hasOne(AllowedContacts::class, ['id' => 'user_id']);
     }
 
     public function getRecipient()

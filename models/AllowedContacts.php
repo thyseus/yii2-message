@@ -50,7 +50,7 @@ class AllowedContacts extends \yii\db\ActiveRecord
     {
         return [
             [
-                'class' => TimestampBehavior::className(),
+                'class' => TimestampBehavior::class,
                 'value' => date('Y-m-d G:i:s'),
             ],
         ];
