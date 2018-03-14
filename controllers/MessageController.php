@@ -359,13 +359,14 @@ class MessageController extends Controller
                 $recipients = [$recipients];
             }
 
-            if (isset($_POST['send-message'])) {
+            if (isset($_POST['save-as-draft'])) {
+                $this->saveDraft(Yii::$app->user->id, Yii::$app->request->post()['Message']);
+            } else {
                 foreach ($recipients as $recipient_id) {
                     $this->sendMessage($recipient_id, Yii::$app->request->post()['Message'], $answers ? $origin : null);
                 }
-            } else if (isset($_POST['save-as-draft'])) {
-                $this->saveDraft(Yii::$app->user->id, Yii::$app->request->post()['Message']);
             }
+
             return Yii::$app->request->isAjax ? true : $this->goBack();
         }
 
@@ -445,7 +446,7 @@ class MessageController extends Controller
             }
 
             $event = new MessageSentEvent;
-            $event->postData = $attributes;
+            $event->postData = Yii::$app->request->post();
             $event->message = $model;
             $this->trigger(self::EVENT_AFTER_SEND, $event);
 
