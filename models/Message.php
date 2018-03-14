@@ -118,6 +118,18 @@ class Message extends ActiveRecord
                 ->all(), 'from', 'sender.username');
     }
 
+    /**
+     * @param $user_id
+     * @return array|null|Message|ActiveRecord
+     */
+    public static function getSignature($user_id)
+    {
+        return Message::find()->where([
+            'from' => $user_id,
+            'status' => Message::STATUS_SIGNATURE,
+        ])->one();
+    }
+
     public function rules()
     {
         return [
@@ -130,20 +142,10 @@ class Message extends ActiveRecord
                 'targetAttribute' => 'id',
                 'message' => Yii::t('app', 'Recipient has not been found'),
             ],
-            [['to'], 'required'],
+            [['to'], 'required', 'when' => function ($model) {
+                return $model->status != Message::STATUS_SIGNATURE && $model->status != Message::STATUS_DRAFT;
+            }],
         ];
-    }
-
-    /**
-     * @param $user_id
-     * @return array|null|Message|ActiveRecord
-     */
-    public static function getSignature($user_id)
-    {
-        return Message::find()->where([
-            'from' => $user_id,
-            'status' => Message::STATUS_SIGNATURE,
-        ])->one();
     }
 
     public function behaviors()

@@ -77,10 +77,10 @@ class MessageSearch extends Message
         if ($this->draft) {
             $query->andFilterWhere(['status' => [
                 Message::STATUS_DRAFT,
-                Message::STATUS_SIGNATURE,
             ]]);
 
             $query->andFilterWhere(['not in', 'status', [
+                Message::STATUS_SIGNATURE,
                 Message::STATUS_READ,
                 Message::STATUS_UNREAD,
             ]]);
