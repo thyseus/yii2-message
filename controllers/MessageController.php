@@ -347,7 +347,8 @@ class MessageController extends Controller
             $origin = Message::find()->where(['hash' => $answers])->one();
 
             if (!$origin) {
-                throw new NotFoundHttpException(Yii::t('message', 'Message to be answered can not be found'));
+                throw new NotFoundHttpException(
+                    Yii::t('message', 'Message to be answered can not be found'));
             }
         }
 
@@ -360,47 +361,35 @@ class MessageController extends Controller
 
             if (isset($_POST['send-message'])) {
                 foreach ($recipients as $recipient_id) {
-                    $model = new Message();
-                    $model->load(Yii::$app->request->post());
-                    $model->from = Yii::$app->user->id;
-                    $model->to = $recipient_id;
-                    $model->status = Message::STATUS_UNREAD;
-                    $model->save();
-
-                    if ($answers) {
-                        if ($origin && $origin->to == Yii::$app->user->id && $origin->status == Message::STATUS_READ) {
-                            $origin->updateAttributes(['status' => Message::STATUS_ANSWERED]);
-                        }
-                    }
+                    $this->sendMessage($recipient_id, Yii::$app->request->post()['Message'], $answers ? $origin : null);
                 }
-
-                $event = new MessageSentEvent;
-                $event->postData = Yii::$app->request->post();
-                $event->message = $model;
-                $this->trigger(self::EVENT_AFTER_SEND, $event);
-
-                Yii::$app->session->setFlash(
-                    'success', Yii::t('message',
-                    'The message has been sent.'));
-
             } else if (isset($_POST['save-as-draft'])) {
-                $model = new Message();
-                $model->load(Yii::$app->request->post());
-                $model->status = Message::STATUS_DRAFT;
-                $model->from = Yii::$app->user->id;
-
-                if ($model->to) {
-                    $model->to = implode(', ', $recipients);
-                }
-                $model->save();
-
-                Yii::$app->session->setFlash(
-                    'success', Yii::t('message',
-                    'The message has been saved as draft'));
+                $this->saveDraft(Yii::$app->user->id, Yii::$app->request->post()['Message']);
             }
             return Yii::$app->request->isAjax ? true : $this->goBack();
         }
 
+        $model = $this->prepareCompose($to, $model, $answers ? $origin : null, $context);
+
+        return $this->render('compose', [
+            'model' => $model,
+            'answers' => $answers,
+            'origin' => isset($origin) ? $origin : null,
+            'context' => $context,
+            'dialog' => Yii::$app->request->isAjax,
+            'allow_multiple' => true,
+            'possible_recipients' => ArrayHelper::map($possible_recipients, 'id', 'username'),
+        ]);
+    }
+
+    /**
+     * @param $to
+     * @param Message $model
+     * @param null $origin
+     * @return Message
+     */
+    protected function prepareCompose($to, Message $model, $origin = null, $context = null): Message
+    {
         if (is_numeric($to)) {
             $model->to = [$to];
         }
@@ -409,7 +398,7 @@ class MessageController extends Controller
             $model->context = $context;
         }
 
-        if ($answers) {
+        if ($origin) {
             $prefix = Yii::$app->getModule('message')->answerPrefix;
 
             // avoid stacking of prefixes (Re: Re: Re:)
@@ -426,18 +415,75 @@ class MessageController extends Controller
             $model->message = $signature->message;
         }
 
-        return $this->render('compose', [
-            'model' => $model,
-            'answers' => $answers,
-            'origin' => isset($origin) ? $origin : null,
-            'context' => $context,
-            'dialog' => Yii::$app->request->isAjax,
-            'allow_multiple' => true,
-            'possible_recipients' => ArrayHelper::map($possible_recipients, 'id', 'username'),
-        ]);
+        return $model;
     }
 
-    public function add_to_recipient_list($to)
+    /**
+     *
+     * @param int $recipient_id the user that receives the message
+     * @param array $attributes the incoming $_POST data
+     * @param $origin provide an message that this message should be the answer to
+     * @return bool success state of save()
+     */
+    protected function sendMessage(int $recipient_id, array $attributes, $origin = null): bool
+    {
+        $model = new Message();
+        $model->attributes = $attributes;
+        $model->from = Yii::$app->user->id;
+        $model->to = $recipient_id;
+        $model->status = Message::STATUS_UNREAD;
+
+        if ($model->save()) {
+            if ($origin && $origin->to == Yii::$app->user->id && $origin->status == Message::STATUS_READ) {
+                $origin->updateAttributes(['status' => Message::STATUS_ANSWERED]);
+
+                Yii::$app->session->setFlash('success', Yii::t('message',
+                    'The message has been answered.'));
+            } else {
+                Yii::$app->session->setFlash('success', Yii::t('message',
+                    'The message has been sent.'));
+            }
+
+            $event = new MessageSentEvent;
+            $event->postData = $attributes;
+            $event->message = $model;
+            $this->trigger(self::EVENT_AFTER_SEND, $event);
+
+            return true;
+        } else {
+            Yii::$app->session->setFlash('danger', Yii::t('message',
+                'The message could not be sent: ' . implode(', ', $model->getErrorSummary(true))));
+            return false;
+        }
+    }
+
+    /**
+     * @param $from the user that owns the draft
+     * @param $post the incoming $_POST data
+     */
+    protected function saveDraft(int $from, array $attributes): bool
+    {
+        $model = new Message();
+        $model->attributes = $attributes;
+        $model->status = Message::STATUS_DRAFT;
+        $model->from = Yii::$app->user->id;
+
+        if ($model->save()) {
+            Yii::$app->session->setFlash('success', Yii::t('message',
+                'The message has been saved as draft'));
+            return true;
+        } else {
+            Yii::$app->session->setFlash('danger', Yii::t('message',
+                'The message could not be saved as draft: ') . implode(', ', $model->getErrorSummary(true)));
+            return true;
+        }
+    }
+
+    /**
+     * @param $to
+     * @throws NotFoundHttpException
+     */
+    protected function add_to_recipient_list($to)
     {
         if ($recipient = User::findOne($to)) {
             try {
@@ -456,6 +502,10 @@ class MessageController extends Controller
         } else throw new NotFoundHttpException();
     }
 
+    /**
+     * Handle the signature
+     * @return string
+     */
     public function actionSignature()
     {
         $signature = Message::getSignature(Yii::$app->user->id);
@@ -501,30 +551,16 @@ class MessageController extends Controller
         if (Yii::$app->request->isPost) {
             $draft->load(Yii::$app->request->post());
 
-            if ($draft->save()) {
-                if (isset($_POST['save-draft'])) {
-                    Yii::$app->session->setFlash(
-                        'success', Yii::t('message',
-                        'The message has been saved as draft'));
+            if (isset($_POST['save-draft'])) {
+                $this->saveDraft(Yii::$app->user->id, $draft->attributes);
 
-                    Yii::$app->user->setReturnUrl(['//message/message/drafts']);
-                } else if (isset($_POST['send-draft'])) {
-                    $message = new Message;
-                    $message->attributes = $draft->attributes;
-                    $message->from = Yii::$app->user->id;
-                    $message->status = Message::STATUS_UNREAD;
-                    $message->save();
-
-
-                    Yii::$app->session->setFlash(
-                        'success', Yii::t('message',
-                        'The message has been sent.'));
-
-                    Yii::$app->user->setReturnUrl(['//message/message/inbox']);
-                }
-
-                return $this->goBack();
+                Yii::$app->user->setReturnUrl(['//message/message/drafts']);
+            } else if (isset($_POST['send-draft'])) {
+                $this->sendMessage($draft->to, $draft->attributes, null);
+                Yii::$app->user->setReturnUrl(['//message/message/inbox']);
             }
+
+            return $this->goBack();
         }
 
         return $this->render('draft', [

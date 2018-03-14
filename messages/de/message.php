@@ -66,4 +66,6 @@ return [
     'Your signature has been saved.' => 'Ihre Signatur wurde gespeichert.',
     'The message has been deleted.' => 'Die Nachricht wurde gelöscht.',
     'The message has been sent.' => 'Die Nachricht wurde versendet.',
+    'The message has been answered.' => 'Die Nachricht wurde beantwortet.',
+    'The message could not be saved as draft: ' => 'Der Entwurf konnte nicht gespeichert werden: ',
 ];
