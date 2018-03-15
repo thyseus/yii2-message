@@ -13,6 +13,7 @@ class MessageSearch extends Message
     public $inbox = false;
     public $sent = false;
     public $draft = false;
+    public $templates = false;
 
     /**
      * @inheritdoc
@@ -80,6 +81,18 @@ class MessageSearch extends Message
             ]]);
 
             $query->andFilterWhere(['not in', 'status', [
+                Message::STATUS_TEMPLATE,
+                Message::STATUS_SIGNATURE,
+                Message::STATUS_READ,
+                Message::STATUS_UNREAD,
+            ]]);
+        } else if ($this->templates) {
+            $query->andFilterWhere(['status' => [
+                Message::STATUS_TEMPLATE,
+            ]]);
+
+            $query->andFilterWhere(['not in', 'status', [
+                Message::STATUS_DRAFT,
                 Message::STATUS_SIGNATURE,
                 Message::STATUS_READ,
                 Message::STATUS_UNREAD,
@@ -87,6 +100,7 @@ class MessageSearch extends Message
         } else {
             $query->andFilterWhere(['not in', 'status', [
                 Message::STATUS_DRAFT,
+                Message::STATUS_TEMPLATE,
                 Message::STATUS_SIGNATURE,
             ]]);
         }

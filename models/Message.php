@@ -23,7 +23,8 @@ class Message extends ActiveRecord
     const STATUS_READ = 1;
     const STATUS_ANSWERED = 2;
     const STATUS_DRAFT = 3;
-    const STATUS_SIGNATURE = 4;
+    const STATUS_TEMPLATE = 4;
+    const STATUS_SIGNATURE = 5;
 
     const EVENT_BEFORE_MAIL = 'before_mail';
     const EVENT_AFTER_MAIL = 'after_mail';

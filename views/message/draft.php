@@ -46,7 +46,7 @@ rmrevin\yii\fontawesome\AssetBundle::register($this);
             ['name' => 'save-draft', 'class' => 'btn btn-success']) ?>
 
         <?= Html::submitButton(
-                '<i class="fa fa-envelope-o"></i> ' . Yii::t('message', 'Save and send draft'), [
+                '<i class="fa fa-envelope-o"></i> ' . Yii::t('message', 'Send draft'), [
             'name' => 'send-draft',
             'class' => 'btn btn-success pull-right',
             'data-confirm' => Yii::t('message', 'Are you sure? This draft will be sent to the recipient(s)'),

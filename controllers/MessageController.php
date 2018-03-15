@@ -39,9 +39,9 @@ class MessageController extends Controller
                     [
                         'allow' => true,
                         'actions' => [
-                            'inbox', 'drafts', 'signature', 'out-of-office', 'ignorelist',
-                            'sent', 'compose', 'view', 'delete', 'mark-all-as-read',
-                            'check-for-new-messages', 'manage-draft'],
+                            'inbox', 'drafts', 'templates', 'signature', 'out-of-office',
+                            'ignorelist', 'sent', 'compose', 'view', 'delete', 'mark-all-as-read',
+                            'check-for-new-messages', 'manage-draft', 'manage-template'],
                         'roles' => ['@'],
                     ],
                 ],
@@ -128,7 +128,7 @@ class MessageController extends Controller
     }
 
     /**
-     * Lists all Message models where i am the recipient.
+     * Manage your drafts
      * @return mixed
      */
     public function actionDrafts()
@@ -142,6 +142,27 @@ class MessageController extends Controller
         $dataProvider = $searchModel->search(Yii::$app->request->queryParams);
 
         return $this->render('drafts', [
+            'searchModel' => $searchModel,
+            'dataProvider' => $dataProvider,
+            'users' => $this->recipientsFor(Yii::$app->user->id),
+        ]);
+    }
+
+    /**
+     * Manage your templates
+     * @return mixed
+     */
+    public function actionTemplates()
+    {
+        $searchModel = new MessageSearch();
+        $searchModel->from = Yii::$app->user->id;
+        $searchModel->templates = true;
+
+        Yii::$app->user->setReturnUrl(['//message/message/drafts']);
+
+        $dataProvider = $searchModel->search(Yii::$app->request->queryParams);
+
+        return $this->render('templates', [
             'searchModel' => $searchModel,
             'dataProvider' => $dataProvider,
             'users' => $this->recipientsFor(Yii::$app->user->id),
@@ -361,6 +382,8 @@ class MessageController extends Controller
 
             if (isset($_POST['save-as-draft'])) {
                 $this->saveDraft(Yii::$app->user->id, Yii::$app->request->post()['Message']);
+            } else if (isset($_POST['save-as-template'])) {
+                    $this->saveTemplate(Yii::$app->user->id, Yii::$app->request->post()['Message']);
             } else {
                 foreach ($recipients as $recipient_id) {
                     $this->sendMessage($recipient_id, Yii::$app->request->post()['Message'], $answers ? $origin : null);
@@ -471,12 +494,36 @@ class MessageController extends Controller
 
         if ($model->save()) {
             Yii::$app->session->setFlash('success', Yii::t('message',
-                'The message has been saved as draft'));
+                'The message has been saved as draft.'));
             return true;
         } else {
             Yii::$app->session->setFlash('danger', Yii::t('message',
-                'The message could not be saved as draft: ') . implode(', ', $model->getErrorSummary(true)));
+                'The message could not be saved as draft: ')
+                . implode(', ', $model->getErrorSummary(true)));
+            return false;
+        }
+    }
+
+    /**
+     * @param $from the user that owns the template
+     * @param $post the incoming $_POST data
+     */
+    protected function saveTemplate(int $from, array $attributes): bool
+    {
+        $model = new Message();
+        $model->attributes = $attributes;
+        $model->status = Message::STATUS_TEMPLATE;
+        $model->from = Yii::$app->user->id;
+
+        if ($model->save()) {
+            Yii::$app->session->setFlash('success', Yii::t('message',
+                'The message has been saved as template.'));
             return true;
+        } else {
+            Yii::$app->session->setFlash('danger', Yii::t('message',
+                    'The message could not be saved as template: ')
+                . implode(', ', $model->getErrorSummary(true)));
+            return false;
         }
     }
 
@@ -534,19 +581,33 @@ class MessageController extends Controller
         return $this->render('signature', ['signature' => $signature]);
     }
 
+    /**
+     * Manage a specific draft or create a new one
+     *
+     * The difference between a draft and a template is,
+     * that the former gets automatically removed after sending
+     *
+     * @param null $hash the hash of the draft to be managed
+     * @return string|Response
+     * @throws NotFoundHttpException
+     */
     public function actionManageDraft($hash = null)
     {
         if ($hash) {
-            $draft = Message::find()->where(['from' => Yii::$app->user->id, 'hash' => $hash])->one();
+            $draft = Message::find()->where([
+                'status' => Message::STATUS_DRAFT,
+                'from' => Yii::$app->user->id,
+                'hash' => $hash,
+            ])->one();
             if (!$draft) {
                 throw new NotFoundHttpException();
             }
         } else {
             $draft = new Message;
+            $draft->status = Message::STATUS_DRAFT;
+            $draft->from = Yii::$app->user->id;
         }
 
-        $draft->status = Message::STATUS_DRAFT;
-        $draft->from = Yii::$app->user->id;
         $possible_recipients = Message::getPossibleRecipients(Yii::$app->user->id);
 
         if (Yii::$app->request->isPost) {
@@ -557,7 +618,9 @@ class MessageController extends Controller
 
                 Yii::$app->user->setReturnUrl(['//message/message/drafts']);
             } else if (isset($_POST['send-draft'])) {
-                $this->sendMessage($draft->to, $draft->attributes, null);
+                if ($this->sendMessage($draft->to, $draft->attributes, null)) {
+                    $draft->delete();
+                }
                 Yii::$app->user->setReturnUrl(['//message/message/inbox']);
             }
 
@@ -566,6 +629,56 @@ class MessageController extends Controller
 
         return $this->render('draft', [
             'draft' => $draft,
+            'possible_recipients' => ArrayHelper::map($possible_recipients, 'id', 'username'),
+        ]);
+    }
+
+    /**
+     * Manage a specific template or create a new one
+     *
+     * The difference between a draft and a template is,
+     * that the former gets automatically removed after sending
+     *
+     * @param null $hash the hash of the template to be managed
+     * @return string|Response
+     * @throws NotFoundHttpException
+     */
+    public function actionManageTemplate($hash = null)
+    {
+        if ($hash) {
+            $template = Message::find()->where([
+                'status' => Message::STATUS_TEMPLATE,
+                'from' => Yii::$app->user->id,
+                'hash' => $hash,
+            ])->one();
+            if (!$template) {
+                throw new NotFoundHttpException();
+            }
+        } else {
+            $template = new Message;
+            $template->status = Message::STATUS_TEMPLATE;
+            $template->from = Yii::$app->user->id;
+        }
+
+        $possible_recipients = Message::getPossibleRecipients(Yii::$app->user->id);
+
+        if (Yii::$app->request->isPost) {
+            $template->load(Yii::$app->request->post());
+
+            if (isset($_POST['save-template'])) {
+                $this->saveTemplate(Yii::$app->user->id, $template->attributes);
+
+                Yii::$app->user->setReturnUrl(['//message/message/templates']);
+            } else if (isset($_POST['send-template'])) {
+                $this->sendMessage($template->to, $template->attributes, null);
+                Yii::$app->user->setReturnUrl(['//message/message/inbox']);
+            }
+
+            return $this->goBack();
+        }
+
+        return $this->render('template', [
+            'template' => $template,
             'possible_recipients' => ArrayHelper::map($possible_recipients, 'id', 'username'),
         ]);
     }

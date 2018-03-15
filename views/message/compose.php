@@ -76,16 +76,28 @@ rmrevin\yii\fontawesome\AssetBundle::register($this);
         <?= $form->field($model, 'context')->hiddenInput()->label(false); ?>
 
         <div class="form-group">
-            <?php
-            if (!$dialog) {
-                echo Html::submitButton('<i class="fa fa-floppy-o"></i> ' . Yii::t('message', 'Save as Draft'), [
+            <?php if (!$dialog) { ?>
+
+            <div class="btn-group">
+                <?php
+                echo Html::submitButton(
+                    '<i class="fa fa-floppy-o"></i> ' . Yii::t('message', 'Save as Draft'), [
                     'name' => 'save-as-draft',
                     'class' => 'btn btn-success btn-draft']);
-            }
-            echo Html::submitButton('<i class="fa fa-envelope"></i> ' . Yii::t('message', 'Send'), [
-                'data-confirm' => Yii::t('message', 'Are you sure you want to sent this message?'),
+
+                echo Html::submitButton(
+                    '<i class="fa fa-floppy-o"></i> ' . Yii::t('message', 'Save as Template'), [
+                    'name' => 'save-as-template',
+                    'class' => 'btn btn-success btn-template']); ?>
+                <?php } ?>
+            </div>
+
+            <?php
+            echo Html::submitButton(
+                '<i class="fa fa-envelope"></i> ' . Yii::t('message', 'Send'), [
+                $dialog ? null : 'data-confirm' => Yii::t('message', 'Are you sure you want to sent this message?'),
                 'name' => 'send-message',
-                'class' => 'btn btn-success btn-send pull-right']);
+                'class' => 'btn btn-success btn-send-message pull-right']);
             ?>
         </div>
 
