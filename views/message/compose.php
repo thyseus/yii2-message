@@ -32,17 +32,25 @@ rmrevin\yii\fontawesome\AssetBundle::register($this);
         <?php $form = ActiveForm::begin(['id' => 'message-form']); ?>
 
         <div class="row">
-            <div class="col-md-3">
+            <div class="col-md-4">
                 <?php
                 if ($model->to) {
-                    if ($model->to && is_array($model->to) && count($model->to) === 1)
+                    if ($model->to && is_array($model->to) && count($model->to) === 1) {
                         $to = $model->to[0];
-                    else
+                    } else {
                         $to = json_encode($model->to);
+                    }
 
                     $recipient_label = Yii::t('message', 'Recipient');
                     echo "<label class=\"control-label\" for=\"message-recipient\">$recipient_label</label>";
-                    echo '<p>' . $model->recipient->username . '</p>';
+                    $caption_attribute = Message::determineUserCaptionAttribute();
+
+                    if (is_callable($caption_attribute)) {
+                        $caption_attribute = call_user_func($caption_attribute, $model->recipient);
+                        echo '<p>' . $caption_attribute . '</p>';
+                    } else {
+                        echo '<p>' . $model->recipient->username . '</p>';
+                    }
                     echo '<input type=hidden name="Message[to]" value="' . $to . '" />';
                 } else
                     echo $form->field($model, 'to')->widget(Select2::class, [
@@ -55,11 +63,10 @@ rmrevin\yii\fontawesome\AssetBundle::register($this);
                         'language' => Yii::$app->language ? Yii::$app->language : null,
                     ]); ?>
             </div>
-            <div class="col-md-9">
+            <div class="col-md-8">
                 <?= $form->field($model, 'title')->textInput(['maxlength' => true, 'required' => 'required']) ?>
             </div>
         </div>
-
 
         <?php if ($answers && $origin) { ?>
 

@@ -395,6 +395,8 @@ class MessageController extends Controller
 
         $model = $this->prepareCompose($to, $model, $answers ? $origin : null, $context);
 
+        $caption_attribute = Message::determineUserCaptionAttribute();
+
         return $this->render('compose', [
             'model' => $model,
             'answers' => $answers,
@@ -402,7 +404,7 @@ class MessageController extends Controller
             'context' => $context,
             'dialog' => Yii::$app->request->isAjax,
             'allow_multiple' => true,
-            'possible_recipients' => ArrayHelper::map($possible_recipients, 'id', 'username'),
+            'possible_recipients' => ArrayHelper::map($possible_recipients, 'id', $caption_attribute),
         ]);
     }
 

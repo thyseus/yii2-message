@@ -72,8 +72,8 @@ class Message extends ActiveRecord
     }
 
     /**
-     * returns an array of possible recipients for the given user. Applies the ignorelist and applies possible custom
-     * logic.
+     * Returns an array of possible recipients for the given user.
+     * Applies the ignorelist and applies possible custom logic.
      * @param $for_user
      * @return mixed
      */
@@ -82,27 +82,52 @@ class Message extends ActiveRecord
         $user = new Yii::$app->controller->module->userModelClass;
 
         $ignored_users = [];
-        foreach (IgnoreListEntry::find()->select('user_id')->where(['blocks_user_id' => $for_user])->asArray()->all() as $ignore)
+        foreach (IgnoreListEntry::find()
+                     ->select('user_id')
+                     ->where(['blocks_user_id' => $for_user])
+                     ->asArray()
+                     ->all() as $ignore) {
             $ignored_users[] = $ignore['user_id'];
+        }
 
         $allowed_contacts = [];
-        foreach (AllowedContacts::find()->select('is_allowed_to_write')->where(['user_id' => $for_user])->all() as $allowed_user)
+        foreach (AllowedContacts::find()
+                     ->select('is_allowed_to_write')
+                     ->where(['user_id' => $for_user])
+                     ->all() as $allowed_user) {
             $allowed_contacts[] = $allowed_user->is_allowed_to_write;
+        }
 
         $users = $user::find();
         $users->where(['!=', 'id', Yii::$app->user->id]);
         $users->andWhere(['not in', 'id', $ignored_users]);
 
-        if ($allowed_contacts)
+        if ($allowed_contacts) {
             $users->andWhere(['id' => $allowed_contacts]);
+        }
 
         $users = $users->all();
 
-        if (is_callable(Yii::$app->getModule('message')->recipientsFilterCallback))
+        if (is_callable(Yii::$app->getModule('message')->recipientsFilterCallback)) {
             $users = call_user_func(Yii::$app->getModule('message')->recipientsFilterCallback, $users);
+        }
 
         return $users;
     }
+
+    public static function determineUserCaptionAttribute()
+    {
+        $userModelClass = Yii::$app->getModule('message')->userModelClass;
+
+        if (method_exists($userModelClass, '__toString')) {
+            return function ($model) {
+                return $model->__toString();
+            };
+        } else {
+            return 'username';
+        }
+    }
+
 
     /**
      * Get all Users that have ever written a message to the given user

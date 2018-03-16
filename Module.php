@@ -15,9 +15,9 @@ use yii\i18n\PhpMessageSource;
 
 class Module extends BaseModule
 {
-    const VERSION = '0.3.0-dev';
+    const VERSION = '0.4.0-dev';
 
-    public $defaultRoute = 'message/message/inbox';
+    public $defaultRoute = '//message/message/inbox';
 
     /** @var array Model map */
     public $modelMap = [];
@@ -59,7 +59,8 @@ class Module extends BaseModule
     public $recipientsFilterCallback = null;
 
     /**
-     * @var string The class of the User Model inside the application this module is attached to
+     * @var string The class of the User Model inside the application this module is attached to.
+     * Needs at least to have the attributes 'id' and 'username'.
      */
     public $userModelClass = 'app\models\User';
 
