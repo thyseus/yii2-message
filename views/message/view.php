@@ -1,12 +1,13 @@
 <?php
 
 use thyseus\message\models\Message;
+use yii\helpers\StringHelper;
 use yii\helpers\Html;
 
 /* @var $this yii\web\View */
 /* @var $message app\models\Message */
 
-$this->title = $message->title;
+$this->title = StringHelper::truncate($message->title, 80);
 $this->params['breadcrumbs'][] = ['label' => Yii::t('message', 'Inbox'), 'url' => ['inbox']];
 $this->params['breadcrumbs'][] = 'Nachricht: ' . $this->title;
 

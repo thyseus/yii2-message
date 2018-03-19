@@ -3,7 +3,7 @@
 namespace thyseus\message\controllers;
 
 use app\models\User;
-use thyseus\message\events\MessageSentEvent;
+use thyseus\message\events\MessageEvent;
 use thyseus\message\models\AllowedContacts;
 use thyseus\message\models\IgnoreListEntry;
 use thyseus\message\models\Message;
@@ -24,6 +24,13 @@ use yii\web\Response;
  */
 class MessageController extends Controller
 {
+
+    const EVENT_BEFORE_DRAFT = 'event_before_draft';
+    const EVENT_AFTER_DRAFT = 'event_after_draft';
+
+    const EVENT_BEFORE_TEMPLATE = 'event_before_template';
+    const EVENT_AFTER_TEMPLATE = 'event_after_template';
+
     const EVENT_BEFORE_SEND = 'event_before_send';
     const EVENT_AFTER_SEND = 'event_after_send';
 
@@ -438,7 +445,7 @@ class MessageController extends Controller
         }
 
         if ($signature = Message::getSignature(Yii::$app->user->id)) {
-            $model->message = $signature;
+            $model->message = "\n\n\n" . $signature->message;
         }
 
         return $model;
@@ -470,7 +477,7 @@ class MessageController extends Controller
                     'The message has been sent.'));
             }
 
-            $event = new MessageSentEvent;
+            $event = new MessageEvent;
             $event->postData = Yii::$app->request->post();
             $event->message = $model;
             $this->trigger(self::EVENT_AFTER_SEND, $event);
@@ -489,6 +496,8 @@ class MessageController extends Controller
      */
     protected function saveDraft(int $from, array $attributes): bool
     {
+        $this->trigger(self::EVENT_BEFORE_DRAFT);
+
         $model = new Message();
         $model->attributes = $attributes;
         $model->status = Message::STATUS_DRAFT;
@@ -497,6 +506,12 @@ class MessageController extends Controller
         if ($model->save()) {
             Yii::$app->session->setFlash('success', Yii::t('message',
                 'The message has been saved as draft.'));
+
+            $event = new MessageEvent;
+            $event->postData = Yii::$app->request->post();
+            $event->message = $model;
+            $this->trigger(self::EVENT_AFTER_DRAFT, $event);
+
             return true;
         } else {
             Yii::$app->session->setFlash('danger', Yii::t('message',
@@ -512,6 +527,8 @@ class MessageController extends Controller
      */
     protected function saveTemplate(int $from, array $attributes): bool
     {
+        $this->trigger(self::EVENT_BEFORE_DRAFT);
+
         $model = new Message();
         $model->attributes = $attributes;
         $model->status = Message::STATUS_TEMPLATE;
@@ -520,6 +537,12 @@ class MessageController extends Controller
         if ($model->save()) {
             Yii::$app->session->setFlash('success', Yii::t('message',
                 'The message has been saved as template.'));
+
+            $event = new MessageEvent;
+            $event->postData = Yii::$app->request->post();
+            $event->message = $model;
+            $this->trigger(self::EVENT_AFTER_TEMPLATE, $event);
+
             return true;
         } else {
             Yii::$app->session->setFlash('danger', Yii::t('message',
