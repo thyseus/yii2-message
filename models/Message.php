@@ -150,10 +150,16 @@ class Message extends ActiveRecord
      */
     public static function getSignature($user_id)
     {
-        return Message::find()->where([
+        $signature = Message::find()->where([
             'from' => $user_id,
             'status' => Message::STATUS_SIGNATURE,
         ])->one();
+
+        if ($signature) {
+            return "\n\n\n" . $signature->message;
+        }
+
+        return null;
     }
 
     public function rules()

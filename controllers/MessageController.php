@@ -438,7 +438,7 @@ class MessageController extends Controller
         }
 
         if ($signature = Message::getSignature(Yii::$app->user->id)) {
-            $model->message = $signature->message;
+            $model->message = $signature;
         }
 
         return $model;
