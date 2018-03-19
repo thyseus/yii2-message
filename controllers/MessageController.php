@@ -95,7 +95,10 @@ class MessageController extends Controller
 
             if ($message) {
                 if ($message->title != $session->get($last) || $time_bygone) {
-                    return Html::a($message->title, ['//message/message/view', 'hash' => $message->hash]);
+                    return Html::a($message->title, ['//message/message/view', 'hash' => $message->hash])
+                        . '<br><br>' . Yii::t('message', 'Received at: {time_message_received}', [
+                            'time_message_received' => Yii::$app->formatter->asDateTime($message->created_at)
+                        ]);
                     Yii::$app->session->set($last, $message->title);
                 } else
                     return 0;

@@ -79,4 +79,5 @@ return [
     'Save and send template' => 'Vorlage speichern und senden',
     'Drafts' => 'Entwürfe',
     'Templates' => 'Vorlagen',
+    'Received at: {time_message_received}' => 'Empfangen am: {time_message_received}',
 ];
