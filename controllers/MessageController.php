@@ -368,7 +368,7 @@ class MessageController extends Controller
         }
 
         $model = new Message();
-        $possible_recipients = Message::getPossibleRecipients(Yii::$app->user->id);
+        $possible_recipients = Message::getPossibleRecipients(Yii::$app->user->id, $to);
 
         if (!Yii::$app->user->returnUrl) {
             Yii::$app->user->setReturnUrl(Yii::$app->request->referrer);
@@ -636,7 +636,7 @@ class MessageController extends Controller
             $draft->from = Yii::$app->user->id;
         }
 
-        $possible_recipients = Message::getPossibleRecipients(Yii::$app->user->id);
+        $possible_recipients = Message::getPossibleRecipients(Yii::$app->user->id, $draft->to ? $draft->to : null);
 
         if (Yii::$app->request->isPost) {
             $draft->load(Yii::$app->request->post());
@@ -688,7 +688,7 @@ class MessageController extends Controller
             $template->from = Yii::$app->user->id;
         }
 
-        $possible_recipients = Message::getPossibleRecipients(Yii::$app->user->id);
+        $possible_recipients = Message::getPossibleRecipients(Yii::$app->user->id, $template->to ? $template->to : null);
 
         if (Yii::$app->request->isPost) {
             $template->load(Yii::$app->request->post());

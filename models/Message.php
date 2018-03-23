@@ -75,9 +75,10 @@ class Message extends ActiveRecord
      * Returns an array of possible recipients for the given user.
      * Applies the ignorelist and applies possible custom logic.
      * @param $for_user
+     * @param $to us
      * @return mixed
      */
-    public static function getPossibleRecipients($for_user)
+    public static function getPossibleRecipients($for_user, $additional_user = null)
     {
         $user = new Yii::$app->controller->module->userModelClass;
 
@@ -112,6 +113,10 @@ class Message extends ActiveRecord
             $users = call_user_func(Yii::$app->getModule('message')->recipientsFilterCallback, $users);
         }
 
+        if ($additional_user && !in_array($additional_user, $users)) {
+            $users[] = $user::find()->where(['id' => $additional_user])->one();
+        }
+
         return $users;
     }
 
@@ -119,7 +124,7 @@ class Message extends ActiveRecord
     {
         $userModelClass = Yii::$app->getModule('message')->userModelClass;
 
-        if (method_exists($userModelClass, '__toString')) {
+        if (method_exists($userModelClass, '__toString()')) {
             return function ($model) {
                 return $model->__toString();
             };
