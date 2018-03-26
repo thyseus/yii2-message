@@ -14,7 +14,10 @@ $this->params['breadcrumbs'][] = 'Nachricht: ' . $this->title;
 rmrevin\yii\fontawesome\AssetBundle::register($this);
 ?>
 <div class="message-view">
-    <br>
+    <?= $this->render('_actions'); ?>
+
+    <hr>
+
     <p>
         <?php
         $ignored = Message::isUserIgnoredBy($message->from, Yii::$app->user->id);

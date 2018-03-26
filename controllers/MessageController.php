@@ -368,7 +368,7 @@ class MessageController extends Controller
         }
 
         $model = new Message();
-        $possible_recipients = Message::getPossibleRecipients(Yii::$app->user->id, $to);
+        $possible_recipients = Message::getPossibleRecipients(Yii::$app->user->id);
 
         if (!Yii::$app->user->returnUrl) {
             Yii::$app->user->setReturnUrl(Yii::$app->request->referrer);
@@ -612,7 +612,7 @@ class MessageController extends Controller
     /**
      * Manage a specific draft or create a new one
      *
-     * The difference between a draft and a template is,
+     * The (only) difference between a draft and a template is,
      * that the former gets automatically removed after sending
      *
      * @param null $hash the hash of the draft to be managed
@@ -634,9 +634,10 @@ class MessageController extends Controller
             $draft = new Message;
             $draft->status = Message::STATUS_DRAFT;
             $draft->from = Yii::$app->user->id;
+            $draft = $this->prepareCompose(null, $draft);
         }
 
-        $possible_recipients = Message::getPossibleRecipients(Yii::$app->user->id, $draft->to ? $draft->to : null);
+        $possible_recipients = Message::getPossibleRecipients(Yii::$app->user->id);
 
         if (Yii::$app->request->isPost) {
             $draft->load(Yii::$app->request->post());
@@ -688,7 +689,7 @@ class MessageController extends Controller
             $template->from = Yii::$app->user->id;
         }
 
-        $possible_recipients = Message::getPossibleRecipients(Yii::$app->user->id, $template->to ? $template->to : null);
+        $possible_recipients = Message::getPossibleRecipients(Yii::$app->user->id);
 
         if (Yii::$app->request->isPost) {
             $template->load(Yii::$app->request->post());
