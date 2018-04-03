@@ -105,8 +105,8 @@ class MessageController extends Controller
             }
         } else {
             if ($count != $session->get($last) || $time_bygone) {
-                return $count;
                 Yii::$app->session->set($last, $count);
+                return $count;
 
             } else {
                 return 0;
