@@ -10,9 +10,9 @@ $action = Yii::$app->controller->action->id;
 
 <?php
 if ($action == 'compose') {
-    $caption = '<i class="fa fa-plus"></i> <strong>' . Yii::t('message', 'Write a message') . '</strong>';
+    $caption = '<i class="fas fa-plus"></i> <strong>' . Yii::t('message', 'Write a message') . '</strong>';
 } else {
-    $caption = '<i class="fa fa-plus"></i> ' . Yii::t('message', 'Write a message');
+    $caption = '<i class="fas fa-plus"></i> ' . Yii::t('message', 'Write a message');
 } ?>
 
 <?= Html::a($caption, ['compose'], ['class' => 'btn btn-success']) ?>
@@ -20,36 +20,36 @@ if ($action == 'compose') {
 
 <?php
 if ($action == 'inbox') {
-    $caption = '<i class="fa fa-inbox"></i> <strong>' . Yii::t('message', 'Inbox') . '</strong>';
+    $caption = '<i class="fas fa-inbox"></i> <strong>' . Yii::t('message', 'Inbox') . '</strong>';
 } else {
-    $caption = '<i class="fa fa-inbox"></i> ' . Yii::t('message', 'Inbox');
+    $caption = '<i class="fas fa-inbox"></i> ' . Yii::t('message', 'Inbox');
 } ?>
 
 <?= Html::a($caption, ['inbox'], ['class' => 'btn btn-success']) ?>
 
 <?php
 if ($action == 'sent') {
-    $caption = '<i class="fa fa-paper-plane-o"></i> <strong>' . Yii::t('message', 'Sent') . '</strong>';
+    $caption = '<i class="fas fa-share-square"></i> <strong>' . Yii::t('message', 'Sent') . '</strong>';
 } else {
-    $caption = '<i class="fa fa-paper-plane-o"></i> ' . Yii::t('message', 'Sent');
+    $caption = '<i class="fas fa-share-square"></i> ' . Yii::t('message', 'Sent');
 } ?>
 
 <?= Html::a($caption, ['sent'], ['class' => 'btn btn-success']) ?>
 
 <?php
 if ($action == 'drafts' || isset($_GET['hash'])) {
-    $caption = '<i class="fa fa-file-text-o"></i> <strong>' . Yii::t('message', 'Manage Drafts') . '</strong>';
+    $caption = '<i class="fab fa-firstdraft"></i> <strong>' . Yii::t('message', 'Manage Drafts') . '</strong>';
 } else {
-    $caption = '<i class="fa fa-file-text-o"></i> ' . Yii::t('message', 'Manage Drafts');
+    $caption = '<i class="fab fa-firstdraft"></i> ' . Yii::t('message', 'Manage Drafts');
 } ?>
 
 <?= Html::a($caption, ['drafts'], ['class' => 'btn btn-success']) ?>
 
 <?php
 if ($action == 'templates' || isset($_GET['hash'])) {
-    $caption = '<i class="fa fa-file-text-o"></i> <strong>' . Yii::t('message', 'Manage Templates') . '</strong>';
+    $caption = '<i class="fas fa-clone"></i> <strong>' . Yii::t('message', 'Manage Templates') . '</strong>';
 } else {
-    $caption = '<i class="fa fa-file-text-o"></i> ' . Yii::t('message', 'Manage Templates');
+    $caption = '<i class="fas fa-clone"></i> ' . Yii::t('message', 'Manage Templates');
 } ?>
 
 <?= Html::a($caption, ['templates'], ['class' => 'btn btn-success']) ?>
@@ -80,18 +80,18 @@ if ($action == 'templates' || isset($_GET['hash'])) {
 
         <?php
         if ($action == 'signature') {
-            $caption = '<i class="fa fa-pencil-square-o"></i> <strong>' . Yii::t('message', 'Manage Signature') . '</strong>';
+            $caption = '<i class="fas fa-pencil-alt"></i> <strong>' . Yii::t('message', 'Manage Signature') . '</strong>';
         } else {
-            $caption = '<i class="fa fa-pencil-square-o"></i> ' . Yii::t('message', 'Manage Signature');
+            $caption = '<i class="fas fa-pencil-alt"></i> ' . Yii::t('message', 'Manage Signature');
         } ?>
 
         <li> <?= Html::a($caption, ['signature'], ['class' => 'btn btn-success']) ?> </li>
 
         <?php
         if ($action == 'ignorelist') {
-            $caption = '<i class="fa fa-ban"></i> <strong>' . Yii::t('message', 'Manage Ignorelist') . '</strong>';
+            $caption = '<i class="fas fa-ban"></i> <strong>' . Yii::t('message', 'Manage Ignorelist') . '</strong>';
         } else {
-            $caption = '<i class="fa fa-ban"></i> ' . Yii::t('message', 'Manage Ignorelist');
+            $caption = '<i class="fas fa-ban"></i> ' . Yii::t('message', 'Manage Ignorelist');
         } ?>
 
         <li> <?= Html::a($caption, ['ignorelist'], ['class' => 'btn btn-success']) ?> </li>
@@ -101,7 +101,7 @@ if ($action == 'templates' || isset($_GET['hash'])) {
 
 <?php if ($action == 'inbox') { ?>
     <?= Html::a(
-        '<i class="fa fa-flag-checkered"></i> ' . Yii::t('message', 'Mark all messages as read'),
+        '<i class="fas fa-flag-checkered"></i> ' . Yii::t('message', 'Mark all messages as read'),
         ['mark-all-as-read'], ['class' => 'btn btn-success pull-right']) ?>
 <?php } ?>
 

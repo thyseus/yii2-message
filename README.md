@@ -113,15 +113,15 @@ echo Nav::widget([
       'label' => $messagelabel,
       'url' => '',
       'visible' => !Yii::$app->user->isGuest, 'items' => [
-        ['label' => '<i class="fa fa-inbox"></i> Inbox', 'url' => ['/message/message/inbox']],
-        ['label' => '<i class="fa fa-paper-plane"></i> Sent', 'url' => ['/message/message/sent']],
+        ['label' => '<i class="fas fa-inbox"></i> Inbox', 'url' => ['/message/message/inbox']],
+        ['label' => '<i class="fas fa-share-square"></i> Sent', 'url' => ['/message/message/sent']],
         '<hr>',
-        ['label' => '<i class="fa fa-file-text-o"></i> Drafts', 'url' => ['/message/message/drafts']],
-        ['label' => '<i class="fa fa-pencil-square-o"></i> Signature', 'url' => ['/message/message/signature']],
-        ['label' => '<i class="fa fa-calendar"></i> Out of Office', 'url' => ['/message/message/out-of-office']],
-        ['label' => '<i class="fa fa-ban"></i> Manage your Ignorelist', 'url' => ['/message/message/ignorelist']],
+        ['label' => '<i class="fas fa-firstdraft"></i> Drafts', 'url' => ['/message/message/drafts']],
+        ['label' => '<i class="fas fa-clone"></i> Signature', 'url' => ['/message/message/signature']],
+        ['label' => '<i class="fas fa-calendar"></i> Out of Office', 'url' => ['/message/message/out-of-office']],
+        ['label' => '<i class="fas fa-ban"></i> Manage your Ignorelist', 'url' => ['/message/message/ignorelist']],
         '<hr>',
-        ['label' => '<i class="fa fa-plus"></i> Compose a Message', 'url' => ['/message/message/compose']],
+        ['label' => '<i class="fas fa-plus"></i> Compose a Message', 'url' => ['/message/message/compose']],
       ]
     ],
     // ...
