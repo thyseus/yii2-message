@@ -69,13 +69,13 @@ rmrevin\yii\fontawesome\AssetBundle::register($this);
                 'value' => function ($data) {
                     switch ($data->status) {
                         case Message::STATUS_UNREAD:
-                            return '<span class="glyphicon glyphicon-envelope" title="' . Yii::t('message', 'unread') . '">';
+                            return '<span class="fas fa-envelope" title="' . Yii::t('message', 'unread') . '">';
                             break;
                         case Message::STATUS_READ:
-                            return '<span class="glyphicon glyphicon-ok" title="' . Yii::t('message', 'read') . '">';
+                            return '<span class="fas fa-eye" title="' . Yii::t('message', 'read') . '">';
                             break;
                         case Message::STATUS_ANSWERED:
-                            return '<span class="glyphicon glyphicon-repeat" title="' . Yii::t('message', 'answered') . '">';
+                            return '<span class="fas fa-check" title="' . Yii::t('message', 'answered') . '">';
                             break;
                     }
                 },

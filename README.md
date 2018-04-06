@@ -100,13 +100,13 @@ You can place this code snippet in your layouts/main.php to give your users acce
 to the message actions:
 
 ```php
-$messagelabel = '<span class="glyphicon glyphicon-envelope"></span>';
+$messagelabel = '<span class="fas fa-envelope"></span>';
 $unread = Message::find()->where(['to' => $user->id, 'status' => 0])->count();
 if ($unread > 0)
       $messagelabel .= '(' . $unread . ')';
       
 echo Nav::widget([
-    'encodeLabels' => false, // important to display HTML-code (glyphicons)
+    'encodeLabels' => false, // important to display HTML-code (fontawesome icons)
     'items' => [
     // ...
     [
@@ -142,7 +142,7 @@ Modal::end();
 
 $recipient_id = 1337; # write an message to user with id 1337
 
-echo Html::a('<span class="glyphicon glyphicon-envelope"></span> Compose Message', '', [
+echo Html::a('<span class="fas fa-envelope"></span> Compose Message', '', [
   'class' => 'btn btn-default btn-contact-user',
   'data-recipient' => $recipient_id,
   'data-pjax' => 0
