@@ -25,6 +25,8 @@ class Message extends ActiveRecord
     const STATUS_DRAFT = 3;
     const STATUS_TEMPLATE = 4;
     const STATUS_SIGNATURE = 5;
+    const STATUS_OUT_OF_OFFICE_INACTIVE = 6;
+    const STATUS_OUT_OF_OFFICE_ACTIVE = 7;
 
     const EVENT_BEFORE_MAIL = 'before_mail';
     const EVENT_AFTER_MAIL = 'after_mail';
@@ -120,7 +122,7 @@ class Message extends ActiveRecord
     {
         $userModelClass = Yii::$app->getModule('message')->userModelClass;
 
-        if (method_exists($userModelClass, '__toString()')) {
+        if (method_exists($userModelClass, '__toString')) {
             return function ($model) {
                 return $model->__toString();
             };
@@ -129,6 +131,22 @@ class Message extends ActiveRecord
         }
     }
 
+    /**
+     * When the recipient has configured an out of office message, we reply to the sender automatically
+     */
+    public function handleOutOfOfficeMessage()
+    {
+        $answer = Message::find()->where([
+                'from' => $this->to,
+                'status' => Message::STATUS_OUT_OF_OFFICE_ACTIVE,
+            ]
+        )->one();
+
+        if ($answer) {
+            Message::compose($this->to, $this->from, $answer->title, $answer->message);
+        }
+
+    }
 
     /**
      * Get all Users that have ever written a message to the given user
@@ -157,6 +175,21 @@ class Message extends ActiveRecord
         ])->one();
     }
 
+    /**
+     * @param $user_id
+     * @return array|null|Message|ActiveRecord
+     */
+    public static function getOutOfOffice($user_id)
+    {
+        return Message::find()->where([
+            'from' => $user_id,
+            'status' => [
+                Message::STATUS_OUT_OF_OFFICE_INACTIVE,
+                Message::STATUS_OUT_OF_OFFICE_ACTIVE,
+            ]
+        ])->one();
+    }
+
     public function rules()
     {
         return [
@@ -170,7 +203,12 @@ class Message extends ActiveRecord
                 'message' => Yii::t('app', 'Recipient has not been found'),
             ],
             [['to'], 'required', 'when' => function ($model) {
-                return $model->status != Message::STATUS_SIGNATURE && $model->status != Message::STATUS_DRAFT;
+                return !in_array($model->status, [
+                    Message::STATUS_SIGNATURE,
+                    Message::STATUS_DRAFT,
+                    Message::STATUS_OUT_OF_OFFICE_ACTIVE,
+                    Message::STATUS_OUT_OF_OFFICE_INACTIVE,
+                ]);
             }],
         ];
     }

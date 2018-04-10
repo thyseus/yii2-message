@@ -95,6 +95,7 @@ rmrevin\yii\fontawesome\AssetBundle::register($this);
                 echo Html::submitButton(
                     '<i class="fa fa-floppy-o"></i> ' . Yii::t('message', 'Save as Template'), [
                     'name' => 'save-as-template',
+                    'style' => 'margin-left: 5px;',
                     'class' => 'btn btn-success btn-template']); ?>
                 <?php } ?>
             </div>

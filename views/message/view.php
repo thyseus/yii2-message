@@ -28,7 +28,7 @@ rmrevin\yii\fontawesome\AssetBundle::register($this);
                     'title' => $ignored ? Yii::t(
                         'message', 'The recipient has added you to the ignore list. You can not send any messages to this person.') : '',
                 ]);
-            } else if($message->from === null) {
+            } else if ($message->from === null) {
                 echo '<span class="alert alert-info">';
                 echo Yii::t('message', 'This message has been sent from the System');
                 echo '</span>';
@@ -52,7 +52,7 @@ rmrevin\yii\fontawesome\AssetBundle::register($this);
         ?>
     </p>
     <?php
-    if($message->sender !== null) {
+    if ($message->sender !== null) {
         if (isset(Yii::$app->getModule('message')->userProfileRoute)) {
             $from = Html::a($message->sender->username, array_merge(Yii::$app->getModule('message')->userProfileRoute, ['id' => $message->from]));
         } else {
@@ -75,12 +75,14 @@ rmrevin\yii\fontawesome\AssetBundle::register($this);
             <?= Yii::t('message', 'title'); ?>: <?= Html::encode($this->title) ?>
         </div>
         <div class="panel-body">
-            <?= $message->message ? $message->message : ('<mark>' . Yii::t('message', 'No message content given') . '.</mark>'); ?>
+            <?= $message->message ? nl2br($message->message) : ('<mark>' . Yii::t('message', 'No message content given') . '.</mark>'); ?>
         </div>
         <div class="panel-footer">
             <small> <?= Yii::t('message', 'Message from'); ?>: <?= $from ?><br>
+                <?= Yii::t('message', 'Message to'); ?>: <?= $to ?><br>
                 <?= Yii::t('message', 'sent at'); ?>: <?= Yii::$app->formatter->asDate($message->created_at, 'long'); ?>
-                <?= Yii::t('message', 'at'); ?> <?= Yii::$app->formatter->asDate($message->created_at, 'php:H:i:s'); ?> Uhr<br>
+                <?= Yii::t('message', 'at'); ?> <?= Yii::$app->formatter->asDate($message->created_at, 'php:H:i:s'); ?>
+                Uhr<br>
                 <?php if ($message->context) : ?>
                     <?= Yii::t('message', 'Referring to'); ?>: <?= $message->context; ?>
                 <?php endif; ?>

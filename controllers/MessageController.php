@@ -334,12 +334,13 @@ class MessageController extends Controller
      * When this action is called by an Ajax Request, the view is prepared to return a partial view. This is useful
      * if you want to render the compose form inside a Modal.
      *
-     * Since 0.4.0:
-     *
      * Depending on the submit button that has been used we probably save the message as a draft
-     * instead of sending it directly.
+     * instead of sending it directly. (since 0.4.0)
      *
-     * When a signature is given by the user, we preload the signature in the message.
+     * When a signature is given by the sender, we preload the signature in the message. (since 0.4.0)
+     *
+     * When a out-of-office message is set by the recipient, we automatically send the message as answer
+     * to the reicpient. (since 0.4.0)
      *
      * @see README.md
      * @var $to integer|null The 'recipient' attribute will be prefilled with the user of this id
@@ -393,7 +394,7 @@ class MessageController extends Controller
             if (isset($_POST['save-as-draft'])) {
                 $this->saveDraft(Yii::$app->user->id, Yii::$app->request->post()['Message']);
             } else if (isset($_POST['save-as-template'])) {
-                    $this->saveTemplate(Yii::$app->user->id, Yii::$app->request->post()['Message']);
+                $this->saveTemplate(Yii::$app->user->id, Yii::$app->request->post()['Message']);
             } else {
                 foreach ($recipients as $recipient_id) {
                     $this->sendMessage($recipient_id, Yii::$app->request->post()['Message'], $answers ? $origin : null);
@@ -448,13 +449,15 @@ class MessageController extends Controller
         }
 
         if ($signature = Message::getSignature(Yii::$app->user->id)) {
-            $model->message = "\n\n\n" . $signature->message;
+            $model->message = "\n\n" . $signature->message;
         }
 
         return $model;
     }
 
     /**
+     * Everything is validated, send the message.
+     * Also handle possible automatic answers ("out-of-office message") from the recipient back to the sender
      *
      * @param int $recipient_id the user that receives the message
      * @param array $attributes the incoming $_POST data
@@ -479,6 +482,8 @@ class MessageController extends Controller
                 Yii::$app->session->setFlash('success', Yii::t('message',
                     'The message has been sent.'));
             }
+
+            $model->handleOutOfOfficeMessage();
 
             $event = new MessageEvent;
             $event->postData = Yii::$app->request->post();
@@ -607,6 +612,46 @@ class MessageController extends Controller
         }
 
         return $this->render('signature', ['signature' => $signature]);
+    }
+
+    /**
+     * Handle the Out-of-Office message
+     * @return string
+     */
+    public function actionOutOfOffice()
+    {
+        $outOfOffice = Message::getOutOfOffice(Yii::$app->user->id);
+
+        if (!$outOfOffice) {
+            $outOfOffice = new Message;
+            $outOfOffice->title = Yii::t( 'message',
+                'Currently i am not available, but i will respond to your message as soon as i am back again');
+            $outOfOffice->status = Message::STATUS_OUT_OF_OFFICE_ACTIVE;
+
+            Yii::$app->session->setFlash(
+                'success', Yii::t('message',
+                'You do not have an out-of-office message yet. You can set it here.'));
+        }
+
+        if (Yii::$app->request->isPost) {
+            if (isset($_POST['remove-out-of-office-message'])) {
+                $outOfOffice->delete();
+
+                Yii::$app->session->setFlash(
+                    'success', Yii::t('message',
+                    'Your out-of-office message has been removed.'));
+            } else {
+                $outOfOffice->load(Yii::$app->request->post());
+                $outOfOffice->from = Yii::$app->user->id;
+                $outOfOffice->save();
+
+                Yii::$app->session->setFlash(
+                    'success', Yii::t('message',
+                    'Your out-of-office message has been saved.'));
+            }
+        }
+
+        return $this->render('out_of_office', ['outOfOffice' => $outOfOffice]);
     }
 
     /**
