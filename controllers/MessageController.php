@@ -642,6 +642,11 @@ class MessageController extends Controller
                     'Your out-of-office message has been removed.'));
             } else {
                 $outOfOffice->load(Yii::$app->request->post());
+
+                // We manually assign the status here because it should
+                // not mass-assignable in general:
+                $outOfOffice->status = $_POST['Message']['status'];
+
                 $outOfOffice->from = Yii::$app->user->id;
                 $outOfOffice->save();
 

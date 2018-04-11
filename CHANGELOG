@@ -3,6 +3,7 @@ ENH: Introduce flash messages for common actions
 ENH: Allow to save drafts and signatures
 ENH: Allow to send messages without sender (messages coming from "the system")
 ENH: Allow to use yii2-queue (https://github.com/yiisoft/yii2-queue)
+ENH: Allow to set out-of-office messages (automatically reply when the user is in vacation, etc.)
 
 0.3.0 - released on 2017-04-13
 ENH: style improved using font awesome icons

@@ -88,6 +88,15 @@ if ($action == 'templates' || isset($_GET['hash'])) {
         <li> <?= Html::a($caption, ['signature'], ['class' => 'btn btn-success']) ?> </li>
 
         <?php
+        if ($action == 'out-of-office') {
+            $caption = '<i class="far fa-calendar-times"></i> <strong>' . Yii::t('message', 'Manage Out of Office Message') . '</strong>';
+        } else {
+            $caption = '<i class="far fa-calendar-times"></i> ' . Yii::t('message', 'Manage Out of Office Message');
+        } ?>
+
+        <li> <?= Html::a($caption, ['out-of-office'], ['class' => 'btn btn-success']) ?> </li>
+
+        <?php
         if ($action == 'ignorelist') {
             $caption = '<i class="fas fa-ban"></i> <strong>' . Yii::t('message', 'Manage Ignorelist') . '</strong>';
         } else {

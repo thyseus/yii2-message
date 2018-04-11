@@ -118,7 +118,7 @@ echo Nav::widget([
         '<hr>',
         ['label' => '<i class="fas fa-firstdraft"></i> Drafts', 'url' => ['/message/message/drafts']],
         ['label' => '<i class="fas fa-clone"></i> Signature', 'url' => ['/message/message/signature']],
-        ['label' => '<i class="fas fa-calendar"></i> Out of Office', 'url' => ['/message/message/out-of-office']],
+        ['label' => '<i class="fas fa-calendar-times"></i> Out of Office', 'url' => ['/message/message/out-of-office']],
         ['label' => '<i class="fas fa-ban"></i> Manage your Ignorelist', 'url' => ['/message/message/ignorelist']],
         '<hr>',
         ['label' => '<i class="fas fa-plus"></i> Compose a Message', 'url' => ['/message/message/compose']],

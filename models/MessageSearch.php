@@ -105,12 +105,19 @@ class MessageSearch extends Message
             ]]);
         }
 
-        // We dont care if the recipient removed the message. We still see them as "sent". This is crucial !
+        // We dont care if the recipient removed the message.
+        // We still see them as "sent". This is crucial !
         if (!$this->sent) {
             $query->andFilterWhere(['not in', 'status', [
                 Message::STATUS_DELETED,
             ]]);
         }
+
+        // Never find out-of-office message definitions in any in/outbox:
+        $query->andFilterWhere(['not in', 'status', [
+            Message::STATUS_OUT_OF_OFFICE_ACTIVE,
+            Message::STATUS_OUT_OF_OFFICE_INACTIVE,
+        ]]);
 
         $query->andFilterWhere(['like', 'hash', $this->hash])
             ->andFilterWhere(['like', 'title', $this->title])
