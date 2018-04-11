@@ -9,9 +9,8 @@ use yii\helpers\Html;
 
 $this->title = StringHelper::truncate($message->title, 80);
 $this->params['breadcrumbs'][] = ['label' => Yii::t('message', 'Inbox'), 'url' => ['inbox']];
-$this->params['breadcrumbs'][] = 'Nachricht: ' . $this->title;
+$this->params['breadcrumbs'][] = Yii::t('message', 'Message: ') . $this->title;
 
-rmrevin\yii\fontawesome\AssetBundle::register($this);
 ?>
 <div class="message-view">
     <?= $this->render('_actions'); ?>
@@ -21,6 +20,7 @@ rmrevin\yii\fontawesome\AssetBundle::register($this);
     <p>
         <?php
         $ignored = Message::isUserIgnoredBy($message->from, Yii::$app->user->id);
+
         if ($message->from != Yii::$app->user->id && $message->from) {
             if ($ignored) {
                 echo Html::tag('span', Yii::t('message', 'Answer'), [
@@ -33,15 +33,20 @@ rmrevin\yii\fontawesome\AssetBundle::register($this);
                 echo Yii::t('message', 'This message has been sent from the System');
                 echo '</span>';
             } else {
-                echo Html::a('<i class="fa fa-reply" aria-hidden="true"></i> ' . Yii::t('message', 'Answer'), [
-                    'compose', 'to' => $message->from, 'answers' => $message->hash]);
+                echo Html::a(
+                    '<i class="fa fa-reply" aria-hidden="true"></i> '
+                    . Yii::t('message', 'Answer'),
+                    ['compose', 'to' => $message->from, 'answers' => $message->hash]);
             }
         }
         ?>
 
         <?php
         if ($message->to == Yii::$app->user->id) {
-            echo Html::a('<i class="fa fa-remove"></i> ' . Yii::t('message', 'Delete'), ['delete', 'hash' => $message->hash], [
+            echo Html::a(
+                '<i class="fa fa-remove"></i> '
+                . Yii::t('message', 'Delete'),
+                ['delete', 'hash' => $message->hash], [
                 'class' => 'text-red ml',
                 'data' => [
                     'confirm' => Yii::t('message', 'Are you sure you want to delete this message?'),
@@ -51,6 +56,7 @@ rmrevin\yii\fontawesome\AssetBundle::register($this);
         }
         ?>
     </p>
+
     <?php
     if ($message->sender !== null) {
         if (isset(Yii::$app->getModule('message')->userProfileRoute)) {
@@ -63,7 +69,12 @@ rmrevin\yii\fontawesome\AssetBundle::register($this);
     }
 
     if (isset(Yii::$app->getModule('message')->userProfileRoute)) {
-        $to = Html::a($message->recipient->username, array_merge(Yii::$app->getModule('message')->userProfileRoute, ['id' => $message->to]));
+        $to = Html::a(
+            $message->recipient->username,
+            array_merge(
+                Yii::$app->getModule('message')->userProfileRoute,
+                ['id' => $message->to]
+            ));
     } else {
         $to = $message->recipient->username;
     }
@@ -81,8 +92,9 @@ rmrevin\yii\fontawesome\AssetBundle::register($this);
             <small> <?= Yii::t('message', 'Message from'); ?>: <?= $from ?><br>
                 <?= Yii::t('message', 'Message to'); ?>: <?= $to ?><br>
                 <?= Yii::t('message', 'sent at'); ?>: <?= Yii::$app->formatter->asDate($message->created_at, 'long'); ?>
-                <?= Yii::t('message', 'at'); ?> <?= Yii::$app->formatter->asDate($message->created_at, 'php:H:i:s'); ?>
-                Uhr<br>
+                <?= Yii::t('message', 'at'); ?>
+                <?= Yii::$app->formatter->asDate($message->created_at, 'php:H:i:s'); ?>
+                <br>
                 <?php if ($message->context) : ?>
                     <?= Yii::t('message', 'Referring to'); ?>: <?= $message->context; ?>
                 <?php endif; ?>
@@ -90,5 +102,8 @@ rmrevin\yii\fontawesome\AssetBundle::register($this);
         </div>
     </div>
     <hr>
-    <?= Html::a('<i class="fa fa-arrow-left" aria-hidden="true"></i> ' . Yii::t('message', 'Back to Inbox'), ['/message/message/inbox']) ?>
+    <?= Html::a(
+            '<i class="fa fa-arrow-left" aria-hidden="true"></i> '
+            . Yii::t('message', 'Back to Inbox'),
+            ['/message/message/inbox']) ?>
 </div>

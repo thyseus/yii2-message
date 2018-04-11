@@ -20,8 +20,6 @@ rmrevin\yii\fontawesome\AssetBundle::register($this);
 <div class="message-create">
 
     <?php if (!$dialog): ?>
-        <h1> <?= Html::encode($this->title) ?> </h1>
-
         <?= $this->render('_actions'); ?>
 
         <hr>
