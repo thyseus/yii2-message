@@ -356,6 +356,8 @@ class MessageController extends Controller
     {
         $this->trigger(self::EVENT_BEFORE_SEND);
 
+        $draft_hash = Message::generateHash();
+
         if (Yii::$app->request->isAjax) {
             $this->layout = false;
         }
@@ -386,6 +388,7 @@ class MessageController extends Controller
 
         if (Yii::$app->request->isPost) {
             $recipients = Yii::$app->request->post()['Message']['to'];
+            $draft_hash = Yii::$app->request->post()['draft-hash'];
 
             if (is_numeric($recipients)) { # Only one recipient given
                 $recipients = [$recipients];
@@ -399,6 +402,7 @@ class MessageController extends Controller
                 foreach ($recipients as $recipient_id) {
                     $this->sendMessage($recipient_id, Yii::$app->request->post()['Message'], $answers ? $origin : null);
                 }
+                $this->cleanupDraft($draft_hash);
             }
 
             return Yii::$app->request->isAjax ? true : $this->goBack();
@@ -410,6 +414,7 @@ class MessageController extends Controller
 
         return $this->render('compose', [
             'model' => $model,
+            'draft_hash' => $draft_hash,
             'answers' => $answers,
             'origin' => isset($origin) ? $origin : null,
             'context' => $context,
@@ -417,6 +422,25 @@ class MessageController extends Controller
             'allow_multiple' => true,
             'possible_recipients' => ArrayHelper::map($possible_recipients, 'id', $caption_attribute),
         ]);
+    }
+
+    /**
+     * We remove the draft when the message has been sent successfully.
+     * We delete it from the db completely so we do not clutter up our database.
+     * @param string $draft_hash
+     * @return bool
+     */
+    protected function cleanupDraft(string $draft_hash): bool
+    {
+        $user_id = Yii::$app->user->id;
+        $status = Message::STATUS_DRAFT;
+        $message_table = 'message';
+
+        Yii::$app->db->createCommand(
+            "delete from `$message_table` where `from` = $user_id and `status` = $status and `hash` = '$draft_hash'"
+        )->execute();
+
+        return true;
     }
 
     /**
@@ -473,7 +497,9 @@ class MessageController extends Controller
         $model->status = Message::STATUS_UNREAD;
 
         if ($model->save()) {
-            if ($origin && $origin->to == Yii::$app->user->id && $origin->status == Message::STATUS_READ) {
+            if ($origin
+                && $origin->to == Yii::$app->user->id
+                && $origin->status == Message::STATUS_READ) {
                 $origin->updateAttributes(['status' => Message::STATUS_ANSWERED]);
 
                 Yii::$app->session->setFlash('success', Yii::t('message',
@@ -493,7 +519,8 @@ class MessageController extends Controller
             return true;
         } else {
             Yii::$app->session->setFlash('danger', Yii::t('message',
-                'The message could not be sent: ' . implode(', ', $model->getErrorSummary(true))));
+                'The message could not be sent: '
+                . implode(', ', $model->getErrorSummary(true))));
             return false;
         }
     }
@@ -502,29 +529,43 @@ class MessageController extends Controller
      * @param $from the user that owns the draft
      * @param $post the incoming $_POST data
      */
-    protected function saveDraft(int $from, array $attributes): bool
+    protected function saveDraft(int $from, array $attributes, $hash = null): bool
     {
         $this->trigger(self::EVENT_BEFORE_DRAFT);
 
-        $model = new Message();
-        $model->attributes = $attributes;
-        $model->status = Message::STATUS_DRAFT;
-        $model->from = Yii::$app->user->id;
+        $draft = null;
 
-        if ($model->save()) {
+        if ($hash) {
+            $draft = Message::find()->where([
+                'hash' => $attributes['hash'],
+                'status' => Message::STATUS_DRAFT,
+                'from' => $from,
+            ])->one();
+        }
+
+        if (!$draft) {
+            $draft = new Message();
+        }
+
+        $draft->attributes = $attributes;
+        $draft->status = Message::STATUS_DRAFT;
+        $draft->from = Yii::$app->user->id;
+        $draft->hash = $hash; # it is not mass-assignable, so we set it here
+
+        if ($draft->save()) {
             Yii::$app->session->setFlash('success', Yii::t('message',
                 'The message has been saved as draft.'));
 
             $event = new MessageEvent;
             $event->postData = Yii::$app->request->post();
-            $event->message = $model;
+            $event->message = $draft;
             $this->trigger(self::EVENT_AFTER_DRAFT, $event);
 
             return true;
         } else {
             Yii::$app->session->setFlash('danger', Yii::t('message',
                 'The message could not be saved as draft: ')
-                . implode(', ', $model->getErrorSummary(true)));
+                . implode(', ', $draft->getErrorSummary(true)));
             return false;
         }
     }
@@ -665,26 +706,31 @@ class MessageController extends Controller
      * The (only) difference between a draft and a template is,
      * that the former gets automatically removed after sending
      *
+     * When this action is called via an ajax request, we save the incoming
+     * hash as draft
+     *
      * @param null $hash the hash of the draft to be managed
      * @return string|Response
      * @throws NotFoundHttpException
      */
     public function actionManageDraft($hash = null)
     {
+        $draft = null;
+
         if ($hash) {
             $draft = Message::find()->where([
                 'status' => Message::STATUS_DRAFT,
                 'from' => Yii::$app->user->id,
                 'hash' => $hash,
             ])->one();
-            if (!$draft) {
-                throw new NotFoundHttpException();
-            }
-        } else {
+        }
+
+        if (!$draft) {
             $draft = new Message;
+            $draft = $this->prepareCompose(null, $draft);
             $draft->status = Message::STATUS_DRAFT;
             $draft->from = Yii::$app->user->id;
-            $draft = $this->prepareCompose(null, $draft);
+
         }
 
         $possible_recipients = Message::getPossibleRecipients(Yii::$app->user->id);
@@ -692,7 +738,10 @@ class MessageController extends Controller
         if (Yii::$app->request->isPost) {
             $draft->load(Yii::$app->request->post());
 
-            if (isset($_POST['save-draft'])) {
+            if (Yii::$app->request->isAjax) {
+                $this->saveDraft(Yii::$app->user->id, $draft->attributes, $hash);
+                return true;
+            } else if (isset($_POST['save-draft'])) {
                 $this->saveDraft(Yii::$app->user->id, $draft->attributes);
 
                 Yii::$app->user->setReturnUrl(['//message/message/drafts']);

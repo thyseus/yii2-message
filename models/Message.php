@@ -1,10 +1,5 @@
 <?php
 
-/**
- * This is the model class for yii2-message.
- *
- */
-
 namespace thyseus\message\models;
 
 use thyseus\message\jobs\EmailJob;
@@ -16,6 +11,12 @@ use yii\db\ActiveRecord;
 use yii\db\Expression;
 use yii\helpers\ArrayHelper;
 
+/**
+ * Class Message
+ *
+ * This is the "Message" model class for the yii2-message module.
+ * @package thyseus\message\models
+ */
 class Message extends ActiveRecord
 {
     const STATUS_DELETED = -1;
@@ -34,6 +35,11 @@ class Message extends ActiveRecord
     public static function tableName()
     {
         return '{{%message}}';
+    }
+
+    public static function generateHash(): string
+    {
+         return md5(uniqid(rand(), true));
     }
 
     /**
@@ -218,8 +224,12 @@ class Message extends ActiveRecord
         return [
             [
                 'class' => AttributeBehavior::class,
+
+                 // this is important for auto-saving of drafts in compose view:
+                'preserveNonEmptyValues' => true,
+
                 'attributes' => [ActiveRecord::EVENT_BEFORE_INSERT => 'hash'],
-                'value' => md5(uniqid(rand(), true)),
+                'value' => Message::generateHash(),
             ],
             [
                 'class' => TimestampBehavior::class,
@@ -313,7 +323,8 @@ class Message extends ActiveRecord
     }
 
     /**
-     * Never delete the message physically on the database level. It should always stay in the 'sent' folder of the sender.
+     * Never delete the message physically on the database level.
+     * It should always stay in the 'sent' folder of the sender.
      * @return int
      */
     public function delete()

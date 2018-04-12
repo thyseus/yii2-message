@@ -107,12 +107,33 @@ rmrevin\yii\fontawesome\AssetBundle::register($this);
             ?>
         </div>
 
+        <input type="hidden" name="draft-hash" value="<?= $draft_hash; ?>">
+        <input type="hidden" name="save-draft-url" value="<?= \yii\helpers\Url::to(
+            ['manage-draft', 'hash' => $draft_hash]
+        ); ?>">
+
         <?php ActiveForm::end(); ?>
 
         <?php if (!$dialog) { ?>
             <hr>
-            <?php echo Html::a('<i class="fa fa-arrow-left" aria-hidden="true"></i> ' . Yii::t('message', 'Back to Inbox'), ['/message/message/inbox']) ?>
+            <?php echo Html::a('<i class="fa fa-arrow-left" aria-hidden="true"></i> '
+                . Yii::t('message', 'Back to Inbox'), ['/message/message/inbox']) ?>
         <?php } ?>
     </div>
 
 </div>
+
+<?php $this->registerJs(<<<JS
+function saveDraft() {
+    $.ajax({
+        'url': $('input[name="save-draft-url"]').val(),
+        'method': 'POST',
+        'data': $('form').serialize(),
+    });
+}
+
+$('input, textarea, select').blur(function() { saveDraft(); } );
+
+setInterval(function() { saveDraft(); }, 10000);
+JS
+);
