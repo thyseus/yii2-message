@@ -566,6 +566,7 @@ class MessageController extends Controller
             Yii::$app->session->setFlash('danger', Yii::t('message',
                 'The message could not be saved as draft: ')
                 . implode(', ', $draft->getErrorSummary(true)));
+
             return false;
         }
     }

@@ -132,8 +132,29 @@ function saveDraft() {
     });
 }
 
-$('input, textarea, select').blur(function() { saveDraft(); } );
+$('input, textarea, select').blur(function() {
+    saveDraft(); 
+});
+
+$('#message-title').keyup(function() {
+    secureTextArea();
+}); 
+
+function secureTextArea() {
+    secured = $('#message-title').val() == '';
+    
+    if (secured) {
+        $('#message-message').attr('disabled', 'disabled');
+    } else {
+        $('#message-message').attr('disabled', false);
+    }
+}
+
+secureTextArea();
 
 setInterval(function() { saveDraft(); }, 10000);
+
+
 JS
 );
+

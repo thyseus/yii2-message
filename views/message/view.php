@@ -15,8 +15,6 @@ $this->params['breadcrumbs'][] = Yii::t('message', 'Message: ') . $this->title;
 <div class="message-view">
     <?= $this->render('_actions'); ?>
 
-    <hr>
-
     <p>
         <?php
         $ignored = Message::isUserIgnoredBy($message->from, Yii::$app->user->id);
@@ -38,21 +36,6 @@ $this->params['breadcrumbs'][] = Yii::t('message', 'Message: ') . $this->title;
                     . Yii::t('message', 'Answer'),
                     ['compose', 'to' => $message->from, 'answers' => $message->hash]);
             }
-        }
-        ?>
-
-        <?php
-        if ($message->to == Yii::$app->user->id) {
-            echo Html::a(
-                '<i class="fa fa-remove"></i> '
-                . Yii::t('message', 'Delete'),
-                ['delete', 'hash' => $message->hash], [
-                'class' => 'text-red ml',
-                'data' => [
-                    'confirm' => Yii::t('message', 'Are you sure you want to delete this message?'),
-                    'method' => 'post',
-                ],
-            ]);
         }
         ?>
     </p>
@@ -79,14 +62,15 @@ $this->params['breadcrumbs'][] = Yii::t('message', 'Message: ') . $this->title;
         $to = $message->recipient->username;
     }
     ?>
-    <hr>
 
     <div class="panel panel-default">
         <div class="panel-heading">
             <?= Yii::t('message', 'title'); ?>: <?= Html::encode($this->title) ?>
         </div>
         <div class="panel-body">
-            <?= $message->message ? nl2br($message->message) : ('<mark>' . Yii::t('message', 'No message content given') . '.</mark>'); ?>
+            <?= $message->message
+                ? nl2br($message->message)
+                : ('<mark>' . Yii::t('message', 'No message content given') . '.</mark>'); ?>
         </div>
         <div class="panel-footer">
             <small> <?= Yii::t('message', 'Message from'); ?>: <?= $from ?><br>
@@ -101,9 +85,25 @@ $this->params['breadcrumbs'][] = Yii::t('message', 'Message: ') . $this->title;
             </small>
         </div>
     </div>
-    <hr>
+
     <?= Html::a(
             '<i class="fa fa-arrow-left" aria-hidden="true"></i> '
             . Yii::t('message', 'Back to Inbox'),
             ['/message/message/inbox']) ?>
+
+    <?php
+    if ($message->to == Yii::$app->user->id) {
+        echo Html::a(
+            '<i class="fa fa-remove"></i> '
+            . Yii::t('message', 'Delete message'),
+            ['delete', 'hash' => $message->hash], [
+            'class' => 'text-red ml',
+            'data' => [
+                'confirm' => Yii::t('message',
+                    'Are you sure you want to delete this message?'),
+                'method' => 'post',
+            ],
+        ]);
+    }
+    ?>
 </div>

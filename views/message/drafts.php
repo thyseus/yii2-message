@@ -1,4 +1,5 @@
 <?php
+
 use thyseus\message\models\Message;
 use yii\grid\GridView;
 use yii\helpers\Html;
@@ -50,15 +51,15 @@ rmrevin\yii\fontawesome\AssetBundle::register($this);
                 'format' => 'raw', // do not use 'format' => 'html' because the 'data-pjax=0' gets swallowed.
                 'value' => function ($data) {
                     return Html::a(
-                            $data->status == Message::STATUS_UNREAD ? '<strong>' . $data->title . '</strong>' : $data->title,
-                            ['manage-draft', 'hash' => $data->hash], ['data-pjax' => 0]);
+                        $data->status == Message::STATUS_UNREAD ? '<strong>' . $data->title . '</strong>' : $data->title,
+                        ['manage-draft', 'hash' => $data->hash], ['data-pjax' => 0]);
                 },
             ],
             [
                 'headerOptions' => ['style' => 'width: 50px;'],
                 'filter' => false,
                 'format' => 'raw',
-                'value' => function($data) {
+                'value' => function ($data) {
                     return Html::a('<i class="fa fa-remove">', ['delete', 'hash' => $data->hash], [
                         'data-method' => 'POST',
                         'data-confirm' => Yii::t('message', 'Are you sure you want to delete this draft?'),
@@ -66,5 +67,14 @@ rmrevin\yii\fontawesome\AssetBundle::register($this);
                     ]);
                 }
             ],
+            [
+                'header' => '',
+                'format' => 'html',
+                'value' => function ($model) {
+                    return Html::a(Yii::t('message', 'Open Draft'), [
+                        'manage-draft', 'id' => $model->id
+                    ]);
+                },
+            ]
         ],
     ]); ?>
