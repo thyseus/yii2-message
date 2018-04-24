@@ -56,25 +56,24 @@ rmrevin\yii\fontawesome\AssetBundle::register($this);
                 },
             ],
             [
-                'headerOptions' => ['style' => 'width: 50px;'],
+                'headerOptions' => ['style' => 'width: 60px;'],
                 'filter' => false,
                 'format' => 'raw',
                 'value' => function ($data) {
-                    return Html::a('<i class="fa fa-remove">', ['delete', 'hash' => $data->hash], [
-                        'data-method' => 'POST',
-                        'data-confirm' => Yii::t('message', 'Are you sure you want to delete this draft?'),
-                        'title' => Yii::t('message', 'Delete draft'),
-                    ]);
+                    $view = Html::a('<i class="fas fa-eye"></i>',
+                        ['manage-draft', 'hash' => $data->hash], [
+                            'title' => Yii::t('message', 'Open draft'),
+                        ]);
+
+                    $delete = Html::a('<i class="fas fa-trash"></i>',
+                        ['delete', 'hash' => $data->hash], [
+                            'data-method' => 'POST',
+                            'data-confirm' => Yii::t('message', 'Are you sure you want to delete this draft?'),
+                            'title' => Yii::t('message', 'Delete draft'),
+                        ]);
+
+                    return $view . '&nbsp;' . $delete;
                 }
             ],
-            [
-                'header' => '',
-                'format' => 'html',
-                'value' => function ($model) {
-                    return Html::a(Yii::t('message', 'Open Draft'), [
-                        'manage-draft', 'id' => $model->id
-                    ]);
-                },
-            ]
         ],
     ]); ?>

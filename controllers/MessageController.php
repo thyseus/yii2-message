@@ -551,6 +551,9 @@ class MessageController extends Controller
         $draft->status = Message::STATUS_DRAFT;
         $draft->from = Yii::$app->user->id;
         $draft->hash = $hash; # it is not mass-assignable, so we set it here
+        if (!$draft->title) {
+            $draft->title = Yii::t('message', 'No title given');
+        }
 
         if ($draft->save()) {
             Yii::$app->session->setFlash('success', Yii::t('message',
@@ -563,9 +566,11 @@ class MessageController extends Controller
 
             return true;
         } else {
-            Yii::$app->session->setFlash('danger', Yii::t('message',
-                'The message could not be saved as draft: ')
-                . implode(', ', $draft->getErrorSummary(true)));
+            if (!Yii::$app->request->isAjax) {
+                Yii::$app->session->setFlash('danger', Yii::t('message',
+                        'The message could not be saved as draft: ')
+                    . implode(', ', $draft->getErrorSummary(true)));
+            }
 
             return false;
         }

@@ -96,5 +96,7 @@ return [
     'Are you sure to remove your Out of Office Message?' => 'Sind Sie sicher, dass Sie Ihre Abwesenheitsnotiz entfernen wollen?',
     'Your out-of-office message has been saved.' => 'Ihre Abwesenheitsnotiz wurde gespeichert.',
     'You have set an "out-of-office" Message. Currently everybody that sends you a Message will automatically receive your configured answer.' => 'Sie haben eine Abwesenheitsnotiz angegeben. Alle Nachrichten, die Sie aktuell empfangen, werden automatisch beantwortet.',
-    'Open Draft' => 'Entwurf Öffnen',
+    'Open draft' => 'Entwurf öffnen',
+    'Delete draft' => 'Entwurf entfernen',
+    'No title given' => 'Kein Betreff angegeben',
 ];
