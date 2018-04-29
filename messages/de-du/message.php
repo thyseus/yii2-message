@@ -83,7 +83,7 @@ return [
     'Received at: {time_message_received}' => 'Empfangen am: {time_message_received}',
     'Manage Out of Office Message' => 'Abwesenheitsnotiz verwalten',
     'You do not have an out-of-office message yet. You can set it here.' => 'Du hast keine Abwesenheitznotiz gesetzt. Hier kannst Du eine angeben.',
-    'Please Note' => 'Bitte beachten Sie',
+    'Please Note' => 'Bitte beachten',
     'When setting an "Out of Office" message, you will still receive messages as usual, but the recipient will automatically be informed with the message you provided.' => 'Wenn Du eine Abwesenheitsnotiz einträgst, bekommen die Absender von Nachrichten an Dich automatisch die hier angegebene Nachricht',
     'This automatic response will only be sent as long as its status is set to "active".' => 'Diese automatische Antwort wird nur gesendet, so lange sie auf "Aktiv" gesetzt ist',
     'Currently i am not available, but i will respond to your message as soon as i am back again' => 'Aktuell bin ich nicht verfügbar. Ich werde Deine Nachricht so schnell wie möglich bearbeiten, wenn ich zurück bin',
