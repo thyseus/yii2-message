@@ -15,7 +15,9 @@ rmrevin\yii\fontawesome\AssetBundle::register($this);
 ?>
 <div class="message-index">
 
-    <?= $this->render('_actions'); ?>
+    <div class="inbox-button-holder">
+      <?= $this->render('_actions'); ?>
+    </div>
 
     <hr>
 
