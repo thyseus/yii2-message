@@ -5,6 +5,7 @@ return [
     'messagePath' => __DIR__,
     'languages' => [
         'de',
+		'es',
     ],
     'translator' => 'Yii::t',
     'sort' => false,
