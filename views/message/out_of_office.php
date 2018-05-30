@@ -15,8 +15,6 @@ rmrevin\yii\fontawesome\AssetBundle::register($this);
 ?>
 <div class="out-of-office-create">
 
-    <h1> <?= Html::encode($this->title) ?> </h1>
-
     <?= $this->render('_actions'); ?>
 
     <hr>

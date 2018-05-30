@@ -14,10 +14,7 @@ rmrevin\yii\fontawesome\AssetBundle::register($this);
 
 ?>
 <div class="message-index">
-
-    <div class="inbox-button-holder">
-      <?= $this->render('_actions'); ?>
-    </div>
+    <?= $this->render('_actions'); ?>
 
     <hr>
 
@@ -32,12 +29,7 @@ rmrevin\yii\fontawesome\AssetBundle::register($this);
                 'value' => function ($message) {
                     $module = Yii::$app->getModule('message');
                     if ($message->sender !== null) {
-                        if (isset($module->userProfileRoute)) {
-                            return Html::a($message->sender->username, array_merge(
-                                $module->userProfileRoute, ['id' => $message->from]), ['data-pjax' => 0]);
-                        } else {
-                            return $message->sender->username;
-                        }
+                        return $message->sender->linkTo();
                     } else {
                         return $module->no_sender_caption;
                     }

@@ -13,6 +13,7 @@ $this->params['breadcrumbs'][] = Yii::t('message', 'Message: ') . $this->title;
 
 ?>
 <div class="message-view">
+
     <?= $this->render('_actions'); ?>
 
     <p>

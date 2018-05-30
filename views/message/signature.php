@@ -14,8 +14,6 @@ rmrevin\yii\fontawesome\AssetBundle::register($this);
 ?>
 <div class="signature-create">
 
-    <h1> <?= Html::encode($this->title) ?> </h1>
-
     <?= $this->render('_actions'); ?>
 
     <hr>

@@ -9,147 +9,150 @@ $action = Yii::$app->controller->action->id;
 
 ?>
 
-<?php
-if ($action == 'compose') {
-    $caption = '<i class="fas fa-plus"></i> <strong>' . Yii::t('message', 'Write a message') . '</strong>';
-} else {
-    $caption = '<i class="fas fa-plus"></i> ' . Yii::t('message', 'Write a message');
-} ?>
+<div class="inbox-button-holder">
 
-<?= Html::a($caption, ['compose'], ['class' => 'btn btn-success']) ?>
+    <?php
+    if ($action == 'compose') {
+        $caption = '<i class="fas fa-plus"></i> <strong>' . Yii::t('message', 'Write a message') . '</strong>';
+    } else {
+        $caption = '<i class="fas fa-plus"></i> ' . Yii::t('message', 'Write a message');
+    } ?>
 
-<?php
+    <?= Html::a($caption, ['compose'], ['class' => 'btn btn-success']) ?>
 
-$icon = '<i class="fas fa-inbox"></i> ';
-$caption = Yii::t('message', 'Inbox');
+    <?php
 
-if ($action == 'inbox') {
-    $caption = Html::tag('strong', $caption);
-}
+    $icon = '<i class="fas fa-inbox"></i> ';
+    $caption = Yii::t('message', 'Inbox');
 
-$inbox_count = Message::find()->where([
-    'to' => Yii::$app->user->id,
-    'status' => [
-        Message::STATUS_READ,
-        Message::STATUS_UNREAD,
-    ]
-])->count(); ?>
+    if ($action == 'inbox') {
+        $caption = Html::tag('strong', $caption);
+    }
 
-<?= Html::a(sprintf('%s %s (%d)', $icon, $caption, $inbox_count),
-    ['inbox'],
-    ['class' => 'btn btn-success']) ?>
+    $inbox_count = Message::find()->where([
+        'to' => Yii::$app->user->id,
+        'status' => [
+            Message::STATUS_READ,
+            Message::STATUS_UNREAD,
+        ]
+    ])->count(); ?>
 
-<?php
-$icon = '<i class="fas fa-share-square"></i> ';
-$caption = Yii::t('message', 'Sent');
+    <?= Html::a(sprintf('%s %s (%d)', $icon, $caption, $inbox_count),
+        ['inbox'],
+        ['class' => 'btn btn-success']) ?>
 
-if ($action == 'sent') {
-    $caption = Html::tag('strong', $caption);
-}
+    <?php
+    $icon = '<i class="fas fa-share-square"></i> ';
+    $caption = Yii::t('message', 'Sent');
 
-$sent_count = Message::find()->where([
-    'from' => Yii::$app->user->id,
-    'status' => [
-        Message::STATUS_READ,
-        Message::STATUS_UNREAD,
-    ]
-])->count(); ?>
+    if ($action == 'sent') {
+        $caption = Html::tag('strong', $caption);
+    }
 
-<?= Html::a(sprintf('%s %s (%d)', $icon, $caption, $sent_count),
-    ['sent'],
-    ['class' => 'btn btn-success']) ?>
+    $sent_count = Message::find()->where([
+        'from' => Yii::$app->user->id,
+        'status' => [
+            Message::STATUS_READ,
+            Message::STATUS_UNREAD,
+        ]
+    ])->count(); ?>
 
-<?php
-$icon = '<i class="fas fa-firstdraft"></i> ';
-$caption = Yii::t('message', 'Manage Drafts');
+    <?= Html::a(sprintf('%s %s (%d)', $icon, $caption, $sent_count),
+        ['sent'],
+        ['class' => 'btn btn-success']) ?>
 
-if ($action == 'drafts') {
-    $caption = Html::tag('strong', $caption);
-}
+    <?php
+    $icon = '<i class="fab fa-firstdraft"></i> ';
+    $caption = Yii::t('message', 'Manage Drafts');
 
-$draft_count = Message::find()->where([
-    'from' => Yii::$app->user->id,
-    'status' => Message::STATUS_DRAFT,
-])->count(); ?>
+    if ($action == 'drafts') {
+        $caption = Html::tag('strong', $caption);
+    }
 
-<?= Html::a(sprintf('%s %s (%d)', $icon, $caption, $draft_count),
-    ['drafts'],
-    ['class' => 'btn btn-success']) ?>
+    $draft_count = Message::find()->where([
+        'from' => Yii::$app->user->id,
+        'status' => Message::STATUS_DRAFT,
+    ])->count(); ?>
 
-<?php
-$icon = '<i class="fas fa-clone"></i> ';
-$caption = Yii::t('message', 'Manage Templates');
+    <?= Html::a(sprintf('%s %s (%d)', $icon, $caption, $draft_count),
+        ['drafts'],
+        ['class' => 'btn btn-success']) ?>
 
-if ($action == 'templates') {
-    $caption = Html::tag('strong', $caption);
-}
+    <?php
+    $icon = '<i class="fas fa-clone"></i> ';
+    $caption = Yii::t('message', 'Manage Templates');
 
-$template_count = Message::find()->where([
-    'from' => Yii::$app->user->id,
-    'status' => Message::STATUS_TEMPLATE,
-])->count(); ?>
+    if ($action == 'templates') {
+        $caption = Html::tag('strong', $caption);
+    }
 
-<?= Html::a(sprintf('%s %s (%d)', $icon, $caption, $template_count),
-    ['templates'],
-    ['class' => 'btn btn-success']) ?>
+    $template_count = Message::find()->where([
+        'from' => Yii::$app->user->id,
+        'status' => Message::STATUS_TEMPLATE,
+    ])->count(); ?>
 
-&nbsp;
-<div class="btn-group">
-    <button type="button" class="btn btn-primary dropdown-toggle" data-toggle="dropdown">
-        <?= Yii::t('message', 'More'); ?>&nbsp;<span class="caret"></span>
-    </button>
-    <ul class="dropdown-menu" role="menu">
+    <?= Html::a(sprintf('%s %s (%d)', $icon, $caption, $template_count),
+        ['templates'],
+        ['class' => 'btn btn-success']) ?>
 
-        <?php
-        if ($action == 'manage-draft' && !isset($_GET['hash'])) {
-            $caption = '<i class="fa fa-plus"></i> <strong>' . Yii::t('message', 'Create a draft') . '</strong>';
-        } else {
-            $caption = '<i class="fa fa-plus"></i> ' . Yii::t('message', 'Create a draft');
-        } ?>
+    &nbsp;
+    <div class="btn-group">
+        <button type="button" class="btn btn-primary dropdown-toggle" data-toggle="dropdown">
+            <?= Yii::t('message', 'More'); ?>&nbsp;<span class="caret"></span>
+        </button>
+        <ul class="dropdown-menu" role="menu">
 
-        <li> <?= Html::a($caption, ['manage-draft'], ['class' => 'btn btn-success']) ?> </li>
-        <?php
-        if ($action == 'manage-template' && !isset($_GET['hash'])) {
-            $caption = '<i class="fa fa-plus"></i> <strong>' . Yii::t('message', 'Create a template') . '</strong>';
-        } else {
-            $caption = '<i class="fa fa-plus"></i> ' . Yii::t('message', 'Create a template');
-        } ?>
+            <?php
+            if ($action == 'manage-draft' && !isset($_GET['hash'])) {
+                $caption = '<i class="fa fa-plus"></i> <strong>' . Yii::t('message', 'Create a draft') . '</strong>';
+            } else {
+                $caption = '<i class="fa fa-plus"></i> ' . Yii::t('message', 'Create a draft');
+            } ?>
 
-        <li> <?= Html::a($caption, ['manage-template'], ['class' => 'btn btn-success']) ?> </li>
+            <li> <?= Html::a($caption, ['manage-draft'], ['class' => 'btn btn-success']) ?> </li>
+            <?php
+            if ($action == 'manage-template' && !isset($_GET['hash'])) {
+                $caption = '<i class="fa fa-plus"></i> <strong>' . Yii::t('message', 'Create a template') . '</strong>';
+            } else {
+                $caption = '<i class="fa fa-plus"></i> ' . Yii::t('message', 'Create a template');
+            } ?>
 
-        <?php
-        if ($action == 'signature') {
-            $caption = '<i class="fas fa-pencil-alt"></i> <strong>' . Yii::t('message', 'Manage Signature') . '</strong>';
-        } else {
-            $caption = '<i class="fas fa-pencil-alt"></i> ' . Yii::t('message', 'Manage Signature');
-        } ?>
+            <li> <?= Html::a($caption, ['manage-template'], ['class' => 'btn btn-success']) ?> </li>
 
-        <li> <?= Html::a($caption, ['signature'], ['class' => 'btn btn-success']) ?> </li>
+            <?php
+            if ($action == 'signature') {
+                $caption = '<i class="fas fa-pencil-alt"></i> <strong>' . Yii::t('message', 'Manage Signature') . '</strong>';
+            } else {
+                $caption = '<i class="fas fa-pencil-alt"></i> ' . Yii::t('message', 'Manage Signature');
+            } ?>
 
-        <?php
-        if ($action == 'out-of-office') {
-            $caption = '<i class="far fa-calendar-times"></i> <strong>' . Yii::t('message', 'Manage Out of Office Message') . '</strong>';
-        } else {
-            $caption = '<i class="far fa-calendar-times"></i> ' . Yii::t('message', 'Manage Out of Office Message');
-        } ?>
+            <li> <?= Html::a($caption, ['signature'], ['class' => 'btn btn-success']) ?> </li>
 
-        <li> <?= Html::a($caption, ['out-of-office'], ['class' => 'btn btn-success']) ?> </li>
+            <?php
+            if ($action == 'out-of-office') {
+                $caption = '<i class="far fa-calendar-times"></i> <strong>' . Yii::t('message', 'Manage Out of Office Message') . '</strong>';
+            } else {
+                $caption = '<i class="far fa-calendar-times"></i> ' . Yii::t('message', 'Manage Out of Office Message');
+            } ?>
 
-        <?php
-        if ($action == 'ignorelist') {
-            $caption = '<i class="fas fa-ban"></i> <strong>' . Yii::t('message', 'Manage Ignorelist') . '</strong>';
-        } else {
-            $caption = '<i class="fas fa-ban"></i> ' . Yii::t('message', 'Manage Ignorelist');
-        } ?>
+            <li> <?= Html::a($caption, ['out-of-office'], ['class' => 'btn btn-success']) ?> </li>
 
-        <li> <?= Html::a($caption, ['ignorelist'], ['class' => 'btn btn-success']) ?> </li>
+            <?php
+            if ($action == 'ignorelist') {
+                $caption = '<i class="fas fa-ban"></i> <strong>' . Yii::t('message', 'Manage Ignorelist') . '</strong>';
+            } else {
+                $caption = '<i class="fas fa-ban"></i> ' . Yii::t('message', 'Manage Ignorelist');
+            } ?>
 
-    </ul>
+            <li> <?= Html::a($caption, ['ignorelist'], ['class' => 'btn btn-success']) ?> </li>
+
+        </ul>
+    </div>
+
+    <?php if ($action == 'inbox') { ?>
+        <?= Html::a(
+            '<i class="fas fa-flag-checkered"></i> ' . Yii::t('message', 'Mark all messages as read'),
+            ['mark-all-as-read'], ['class' => 'btn btn-success pull-right']) ?>
+    <?php } ?>
+
 </div>
-
-<?php if ($action == 'inbox') { ?>
-    <?= Html::a(
-        '<i class="fas fa-flag-checkered"></i> ' . Yii::t('message', 'Mark all messages as read'),
-        ['mark-all-as-read'], ['class' => 'btn btn-success pull-right']) ?>
-<?php } ?>
-
