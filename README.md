@@ -1,3 +1,11 @@
+# ATTENTION:
+
+github has been bought by Microsoft. This repository is orphaned and has been moved to:
+
+https://gitlab.com/thyseus/yii2-message
+
+Thanks a lot for your understanding and blame Microsoft.
+
 # Yii2-message
 
 System for users to send each other private messages.
